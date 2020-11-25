@@ -41,7 +41,11 @@ exports[`Appbar does not pass any additional props to Searchbar 1`] = `
     <View
       accessibilityLabel="search"
       accessibilityRole="button"
-      accessibilityStates={Array []}
+      accessibilityState={
+        Object {
+          "disabled": undefined,
+        }
+      }
       accessible={true}
       focusable={false}
       hitSlop={
@@ -52,7 +56,6 @@ exports[`Appbar does not pass any additional props to Searchbar 1`] = `
           "top": 6,
         }
       }
-      isTVSelectable={true}
       onClick={[Function]}
       onResponderGrant={[Function]}
       onResponderMove={[Function]}
@@ -83,9 +86,7 @@ exports[`Appbar does not pass any additional props to Searchbar 1`] = `
         ]
       }
     >
-      <View
-        style={null}
-      >
+      <View>
         <Text
           accessibilityElementsHidden={true}
           allowFontScaling={false}
@@ -99,6 +100,7 @@ exports[`Appbar does not pass any additional props to Searchbar 1`] = `
               },
               Array [
                 Object {
+                  "lineHeight": 24,
                   "transform": Array [
                     Object {
                       "scaleX": 1,
@@ -155,10 +157,10 @@ exports[`Appbar does not pass any additional props to Searchbar 1`] = `
     <View
       accessibilityLabel="clear"
       accessibilityRole="button"
-      accessibilityStates={
-        Array [
-          "disabled",
-        ]
+      accessibilityState={
+        Object {
+          "disabled": true,
+        }
       }
       accessible={true}
       focusable={true}
@@ -170,7 +172,6 @@ exports[`Appbar does not pass any additional props to Searchbar 1`] = `
           "top": 6,
         }
       }
-      isTVSelectable={true}
       onClick={[Function]}
       onResponderGrant={[Function]}
       onResponderMove={[Function]}
@@ -203,9 +204,7 @@ exports[`Appbar does not pass any additional props to Searchbar 1`] = `
         ]
       }
     >
-      <View
-        style={null}
-      >
+      <View>
         <Text
           accessibilityElementsHidden={true}
           allowFontScaling={false}
@@ -219,6 +218,7 @@ exports[`Appbar does not pass any additional props to Searchbar 1`] = `
               },
               Array [
                 Object {
+                  "lineHeight": 24,
                   "transform": Array [
                     Object {
                       "scaleX": 1,
@@ -269,7 +269,11 @@ exports[`Appbar passes additional props to AppbarBackAction, AppbarContent and A
   <View
     accessibilityLabel="Back"
     accessibilityRole="button"
-    accessibilityStates={Array []}
+    accessibilityState={
+      Object {
+        "disabled": undefined,
+      }
+    }
     accessible={true}
     focusable={true}
     hitSlop={
@@ -280,7 +284,6 @@ exports[`Appbar passes additional props to AppbarBackAction, AppbarContent and A
         "top": 6,
       }
     }
-    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -311,9 +314,7 @@ exports[`Appbar passes additional props to AppbarBackAction, AppbarContent and A
       ]
     }
   >
-    <View
-      style={null}
-    >
+    <View>
       <View
         style={
           Array [
@@ -448,7 +449,11 @@ exports[`Appbar passes additional props to AppbarBackAction, AppbarContent and A
   </View>
   <View
     accessibilityRole="button"
-    accessibilityStates={Array []}
+    accessibilityState={
+      Object {
+        "disabled": undefined,
+      }
+    }
     accessible={true}
     focusable={true}
     hitSlop={
@@ -459,7 +464,6 @@ exports[`Appbar passes additional props to AppbarBackAction, AppbarContent and A
         "top": 6,
       }
     }
-    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -490,9 +494,7 @@ exports[`Appbar passes additional props to AppbarBackAction, AppbarContent and A
       ]
     }
   >
-    <View
-      style={null}
-    >
+    <View>
       <View
         style={
           Array [
@@ -537,6 +539,7 @@ exports[`Appbar passes additional props to AppbarBackAction, AppbarContent and A
                 },
                 Array [
                   Object {
+                    "lineHeight": 24,
                     "transform": Array [
                       Object {
                         "scaleX": 1,

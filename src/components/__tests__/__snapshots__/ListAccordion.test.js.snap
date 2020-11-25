@@ -6,7 +6,6 @@ exports[`renders expanded accordion 1`] = `
     accessibilityRole="button"
     accessible={true}
     focusable={true}
-    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -96,6 +95,7 @@ exports[`renders expanded accordion 1`] = `
               },
               Array [
                 Object {
+                  "lineHeight": 24,
                   "transform": Array [
                     Object {
                       "scaleX": 1,
@@ -123,7 +123,6 @@ exports[`renders expanded accordion 1`] = `
   <View
     accessible={true}
     focusable={false}
-    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -200,7 +199,6 @@ exports[`renders list accordion with children 1`] = `
     accessibilityRole="button"
     accessible={true}
     focusable={true}
-    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -257,6 +255,7 @@ exports[`renders list accordion with children 1`] = `
               },
               Array [
                 Object {
+                  "lineHeight": 24,
                   "transform": Array [
                     Object {
                       "scaleX": 1,
@@ -340,6 +339,7 @@ exports[`renders list accordion with children 1`] = `
               },
               Array [
                 Object {
+                  "lineHeight": 24,
                   "transform": Array [
                     Object {
                       "scaleX": 1,
@@ -373,7 +373,6 @@ exports[`renders list accordion with custom title and description styles 1`] = `
     accessibilityRole="button"
     accessible={true}
     focusable={true}
-    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -495,6 +494,7 @@ exports[`renders list accordion with custom title and description styles 1`] = `
               },
               Array [
                 Object {
+                  "lineHeight": 24,
                   "transform": Array [
                     Object {
                       "scaleX": 1,
@@ -528,7 +528,6 @@ exports[`renders list accordion with left items 1`] = `
     accessibilityRole="button"
     accessible={true}
     focusable={true}
-    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -585,6 +584,7 @@ exports[`renders list accordion with left items 1`] = `
               },
               Array [
                 Object {
+                  "lineHeight": 24,
                   "transform": Array [
                     Object {
                       "scaleX": 1,
@@ -668,6 +668,7 @@ exports[`renders list accordion with left items 1`] = `
               },
               Array [
                 Object {
+                  "lineHeight": 24,
                   "transform": Array [
                     Object {
                       "scaleX": 1,
@@ -701,7 +702,6 @@ exports[`renders multiline list accordion 1`] = `
     accessibilityRole="button"
     accessible={true}
     focusable={true}
-    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -819,6 +819,7 @@ exports[`renders multiline list accordion 1`] = `
               },
               Array [
                 Object {
+                  "lineHeight": 24,
                   "transform": Array [
                     Object {
                       "scaleX": 1,

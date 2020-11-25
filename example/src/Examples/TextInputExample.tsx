@@ -7,13 +7,39 @@ import {
   Platform,
 } from 'react-native';
 import { TextInput, HelperText, useTheme } from 'react-native-paper';
-import { inputReducer } from '../../utils';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { inputReducer, State } from '../../utils';
 
 const MAX_LENGTH = 20;
 
-const initialState = {
+const initialState: State = {
   text: '',
+  customIconText: '',
+  name: '',
+  outlinedText: '',
+  largeText: '',
+  flatTextPassword: 'Password',
+  outlinedLargeText: '',
+  outlinedTextPassword: '',
+  nameNoPadding: '',
+  flatDenseText: '',
+  flatDense: '',
+  outlinedDenseText: '',
+  outlinedDense: '',
+  flatMultiline: '',
+  flatTextArea: '',
+  outlinedMultiline: '',
+  outlinedTextArea: '',
   maxLengthName: '',
+  flatTextSecureEntry: true,
+  outlineTextSecureEntry: true,
+  iconsColor: {
+    flatLeftIcon: undefined,
+    flatRightIcon: undefined,
+    outlineLeftIcon: undefined,
+    outlineRightIcon: undefined,
+    customIcon: undefined,
+  },
 };
 
 type AvoidingViewProps = {
@@ -38,10 +64,13 @@ const TextInputExample = () => {
   const [state, dispatch] = React.useReducer(inputReducer, initialState);
   const {
     text,
+    customIconText,
     name,
     outlinedText,
     largeText,
+    flatTextPassword,
     outlinedLargeText,
+    outlinedTextPassword,
     nameNoPadding,
     flatDenseText,
     flatDense,
@@ -52,12 +81,21 @@ const TextInputExample = () => {
     outlinedMultiline,
     outlinedTextArea,
     maxLengthName,
+    flatTextSecureEntry,
+    outlineTextSecureEntry,
+    iconsColor: {
+      flatLeftIcon,
+      flatRightIcon,
+      outlineLeftIcon,
+      outlineRightIcon,
+      customIcon,
+    },
   } = state;
 
   const _isUsernameValid = (name: string) => /^[a-zA-Z]*$/.test(name);
 
   const {
-    colors: { background },
+    colors: { background, accent },
   } = useTheme();
 
   const inputActionHandler = (type: string, payload: string) =>
@@ -65,6 +103,20 @@ const TextInputExample = () => {
       type: type,
       payload: payload,
     });
+
+  const changeIconColor = (name: keyof State['iconsColor']) => {
+    const color = state.iconsColor[name];
+
+    const colors = {
+      ...state.iconsColor,
+      [name]: !color ? accent : undefined,
+    };
+
+    dispatch({
+      type: 'iconsColor',
+      payload: colors,
+    });
+  };
 
   return (
     <TextInputAvoidingView>
@@ -78,14 +130,80 @@ const TextInputExample = () => {
           label="Flat input"
           placeholder="Type something"
           value={text}
-          onChangeText={text => inputActionHandler('text', text)}
+          onChangeText={(text) => inputActionHandler('text', text)}
+          left={
+            <TextInput.Icon
+              name="heart"
+              color={flatLeftIcon}
+              onPress={() => {
+                changeIconColor('flatLeftIcon');
+              }}
+            />
+          }
+          right={<TextInput.Affix text="/100" />}
         />
         <TextInput
           style={[styles.inputContainerStyle, styles.fontSize]}
           label="Flat input large font"
           placeholder="Type something"
           value={largeText}
-          onChangeText={largeText => inputActionHandler('largeText', largeText)}
+          onChangeText={(largeText) =>
+            inputActionHandler('largeText', largeText)
+          }
+          left={<TextInput.Affix text="#" />}
+          right={
+            <TextInput.Icon
+              name="heart"
+              color={flatRightIcon}
+              onPress={() => {
+                changeIconColor('flatRightIcon');
+              }}
+            />
+          }
+        />
+        <TextInput
+          style={[styles.inputContainerStyle, styles.fontSize]}
+          label="Flat input large font"
+          placeholder="Type something"
+          value={flatTextPassword}
+          onChangeText={(flatTextPassword) =>
+            inputActionHandler('flatTextPassword', flatTextPassword)
+          }
+          secureTextEntry={flatTextSecureEntry}
+          right={
+            <TextInput.Icon
+              name={flatTextSecureEntry ? 'eye' : 'eye-off'}
+              onPress={() =>
+                dispatch({
+                  type: 'flatTextSecureEntry',
+                  payload: !flatTextSecureEntry,
+                })
+              }
+              forceTextInputFocus={false}
+            />
+          }
+        />
+        <TextInput
+          style={styles.inputContainerStyle}
+          label="Flat input with custom icon"
+          placeholder="Type something"
+          value={customIconText}
+          onChangeText={(text) => inputActionHandler('customIconText', text)}
+          right={<TextInput.Affix text="/100" />}
+          left={
+            <TextInput.Icon
+              name={() => (
+                <Icon
+                  name="heart"
+                  size={24}
+                  color={customIcon}
+                  onPress={() => {
+                    changeIconColor('customIcon');
+                  }}
+                />
+              )}
+            />
+          }
         />
         <TextInput
           style={styles.inputContainerStyle}
@@ -93,16 +211,19 @@ const TextInputExample = () => {
           label="Dense flat input"
           placeholder="Type something"
           value={flatDenseText}
-          onChangeText={flatDenseText =>
+          onChangeText={(flatDenseText) =>
             inputActionHandler('flatDenseText', flatDenseText)
           }
+          left={<TextInput.Affix text="#" />}
         />
         <TextInput
           style={styles.inputContainerStyle}
           dense
           placeholder="Dense flat input without label"
           value={flatDense}
-          onChangeText={flatDense => inputActionHandler('flatDense', flatDense)}
+          onChangeText={(flatDense) =>
+            inputActionHandler('flatDense', flatDense)
+          }
         />
         <TextInput
           style={styles.inputContainerStyle}
@@ -110,7 +231,7 @@ const TextInputExample = () => {
           multiline
           placeholder="Type something"
           value={flatMultiline}
-          onChangeText={flatMultiline =>
+          onChangeText={(flatMultiline) =>
             inputActionHandler('flatMultiline', flatMultiline)
           }
         />
@@ -120,7 +241,7 @@ const TextInputExample = () => {
           multiline
           placeholder="Type something"
           value={flatTextArea}
-          onChangeText={flatTextArea =>
+          onChangeText={(flatTextArea) =>
             inputActionHandler('flatTextArea', flatTextArea)
           }
         />
@@ -135,9 +256,19 @@ const TextInputExample = () => {
           label="Outlined input"
           placeholder="Type something"
           value={outlinedText}
-          onChangeText={outlinedText =>
+          onChangeText={(outlinedText) =>
             inputActionHandler('outlinedText', outlinedText)
           }
+          left={
+            <TextInput.Icon
+              name="heart"
+              color={outlineLeftIcon}
+              onPress={() => {
+                changeIconColor('outlineLeftIcon');
+              }}
+            />
+          }
+          right={<TextInput.Affix text="/100" />}
         />
         <TextInput
           mode="outlined"
@@ -145,8 +276,40 @@ const TextInputExample = () => {
           label="Outlined large font"
           placeholder="Type something"
           value={outlinedLargeText}
-          onChangeText={outlinedLargeText =>
+          onChangeText={(outlinedLargeText) =>
             inputActionHandler('outlinedLargeText', outlinedLargeText)
+          }
+          left={<TextInput.Affix text="$" />}
+          right={
+            <TextInput.Icon
+              name="heart"
+              color={outlineRightIcon}
+              onPress={() => {
+                changeIconColor('outlineRightIcon');
+              }}
+            />
+          }
+        />
+        <TextInput
+          mode="outlined"
+          style={[styles.inputContainerStyle, styles.fontSize]}
+          label="Outlined large font"
+          placeholder="Type something"
+          value={outlinedTextPassword}
+          onChangeText={(outlinedTextPassword) =>
+            inputActionHandler('outlinedTextPassword', outlinedTextPassword)
+          }
+          secureTextEntry={outlineTextSecureEntry}
+          right={
+            <TextInput.Icon
+              name={outlineTextSecureEntry ? 'eye' : 'eye-off'}
+              onPress={() =>
+                dispatch({
+                  type: 'outlineTextSecureEntry',
+                  payload: !outlineTextSecureEntry,
+                })
+              }
+            />
           }
         />
         <TextInput
@@ -156,9 +319,10 @@ const TextInputExample = () => {
           label="Dense outlined input"
           placeholder="Type something"
           value={outlinedDenseText}
-          onChangeText={outlinedDenseText =>
+          onChangeText={(outlinedDenseText) =>
             inputActionHandler('outlinedDenseText', outlinedDenseText)
           }
+          left={<TextInput.Affix text="$" />}
         />
         <TextInput
           mode="outlined"
@@ -166,7 +330,7 @@ const TextInputExample = () => {
           dense
           placeholder="Dense outlined input without label"
           value={outlinedDense}
-          onChangeText={outlinedDense =>
+          onChangeText={(outlinedDense) =>
             inputActionHandler('outlinedDense', outlinedDense)
           }
         />
@@ -177,7 +341,7 @@ const TextInputExample = () => {
           multiline
           placeholder="Type something"
           value={outlinedMultiline}
-          onChangeText={outlinedMultiline =>
+          onChangeText={(outlinedMultiline) =>
             inputActionHandler('outlinedMultiline', outlinedMultiline)
           }
         />
@@ -188,7 +352,7 @@ const TextInputExample = () => {
           multiline
           placeholder="Type something"
           value={outlinedTextArea}
-          onChangeText={outlinedTextArea =>
+          onChangeText={(outlinedTextArea) =>
             inputActionHandler('outlinedTextArea', outlinedTextArea)
           }
         />
@@ -204,7 +368,7 @@ const TextInputExample = () => {
             placeholder="Enter username, only letters"
             value={name}
             error={!_isUsernameValid(name)}
-            onChangeText={name => inputActionHandler('name', name)}
+            onChangeText={(name) => inputActionHandler('name', name)}
           />
           <HelperText type="error" visible={!_isUsernameValid(name)}>
             Error: Only letters are allowed
@@ -216,7 +380,7 @@ const TextInputExample = () => {
             placeholder="Enter username, only letters"
             value={maxLengthName}
             error={!_isUsernameValid(maxLengthName)}
-            onChangeText={maxLengthName =>
+            onChangeText={(maxLengthName) =>
               inputActionHandler('maxLengthName', maxLengthName)
             }
             maxLength={MAX_LENGTH}
@@ -241,7 +405,7 @@ const TextInputExample = () => {
             placeholder="Enter username, only letters"
             value={nameNoPadding}
             error={!_isUsernameValid(nameNoPadding)}
-            onChangeText={nameNoPadding =>
+            onChangeText={(nameNoPadding) =>
               inputActionHandler('nameNoPadding', nameNoPadding)
             }
           />
@@ -282,7 +446,7 @@ const styles = StyleSheet.create({
     margin: 8,
   },
   fontSize: {
-    fontSize: 24,
+    fontSize: 32,
   },
   textArea: {
     height: 80,

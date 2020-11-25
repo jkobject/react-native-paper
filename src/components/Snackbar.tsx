@@ -12,7 +12,6 @@ import Button from './Button';
 import Surface from './Surface';
 import Text from './Typography/Text';
 import { withTheme } from '../core/theming';
-import { Theme } from '../types';
 
 type Props = React.ComponentProps<typeof Surface> & {
   /**
@@ -50,12 +49,7 @@ type Props = React.ComponentProps<typeof Surface> & {
   /**
    * @optional
    */
-  theme: Theme;
-};
-
-type State = {
-  opacity: Animated.Value;
-  hidden: boolean;
+  theme: ReactNativePaper.Theme;
 };
 
 const DURATION_SHORT = 4000;
@@ -64,7 +58,7 @@ const DURATION_LONG = 10000;
 
 /**
  * Snackbars provide brief feedback about an operation through a message at the bottom of the screen.
- * Snackbar by default use onSurface color from theme
+ * Snackbar by default uses `onSurface` color from theme.
  * <div class="screenshots">
  *   <img class="medium" src="screenshots/snackbar.gif" />
  * </div>
@@ -75,41 +69,30 @@ const DURATION_LONG = 10000;
  * import { View, StyleSheet } from 'react-native';
  * import { Button, Snackbar } from 'react-native-paper';
  *
- * export default class MyComponent extends React.Component {
- *   state = {
- *     visible: false,
- *   };
+ * const MyComponent = () => {
+ *   const [visible, setVisible] = React.useState(false);
  *
- *   _onToggleSnackBar = () => this.setState(state => ({ visible: !state.visible }));
+ *   const onToggleSnackBar = () => setVisible(!visible);
  *
- *   _onDismissSnackBar = () => this.setState({ visible: false });
+ *   const onDismissSnackBar = () => setVisible(false);
  *
- *   render() {
- *     const { visible } = this.state;
- *
- *     return (
- *       <View style={styles.container}>
- *         <Button
- *           onPress={this._onToggleSnackBar}
- *         >
- *           {visible ? 'Hide' : 'Show'}
- *         </Button>
- *         <Snackbar
- *           visible={visible}
- *           onDismiss={this._onDismissSnackBar}
- *           action={{
- *             label: 'Undo',
- *             onPress: () => {
- *               // Do something
- *             },
- *           }}
- *         >
- *           Hey there! I'm a Snackbar.
- *         </Snackbar>
- *       </View>
- *     );
- *   }
- * }
+ *   return (
+ *     <View style={styles.container}>
+ *       <Button onPress={onToggleSnackBar}>{visible ? 'Hide' : 'Show'}</Button>
+ *       <Snackbar
+ *         visible={visible}
+ *         onDismiss={onDismissSnackBar}
+ *         action={{
+ *           label: 'Undo',
+ *           onPress: () => {
+ *             // Do something
+ *           },
+ *         }}>
+ *         Hey there! I'm a Snackbar.
+ *       </Snackbar>
+ *     </View>
+ *   );
+ * };
  *
  * const styles = StyleSheet.create({
  *   container: {
@@ -117,181 +100,147 @@ const DURATION_LONG = 10000;
  *     justifyContent: 'space-between',
  *   },
  * });
+ *
+ * export default MyComponent;
  * ```
  */
-class Snackbar extends React.Component<Props, State> {
-  /**
-   * Show the Snackbar for a short duration.
-   */
-  static DURATION_SHORT = DURATION_SHORT;
+const Snackbar = ({
+  visible,
+  action,
+  duration = DURATION_MEDIUM,
+  onDismiss,
+  children,
+  wrapperStyle,
+  style,
+  theme,
+  ...rest
+}: Props) => {
+  const { current: opacity } = React.useRef<Animated.Value>(
+    new Animated.Value(0.0)
+  );
+  const [hidden, setHidden] = React.useState<boolean>(!visible);
 
-  /**
-   * Show the Snackbar for a medium duration.
-   */
-  static DURATION_MEDIUM = DURATION_MEDIUM;
+  const hideTimeout = React.useRef<NodeJS.Timeout | undefined>(undefined);
 
-  /**
-   * Show the Snackbar for a long duration.
-   */
-  static DURATION_LONG = DURATION_LONG;
+  const { scale } = theme.animation;
 
-  static defaultProps = {
-    duration: DURATION_MEDIUM,
-  };
+  React.useEffect(() => {
+    return () => {
+      if (hideTimeout.current) clearTimeout(hideTimeout.current);
+    };
+  }, []);
 
-  state = {
-    opacity: new Animated.Value(0.0),
-    hidden: !this.props.visible,
-  };
+  React.useLayoutEffect(() => {
+    if (visible) {
+      // show
+      if (hideTimeout.current) clearTimeout(hideTimeout.current);
+      setHidden(false);
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 200 * scale,
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (finished) {
+          const isInfinity =
+            duration === Number.POSITIVE_INFINITY ||
+            duration === Number.NEGATIVE_INFINITY;
 
-  componentDidMount() {
-    if (this.props.visible) {
-      this.show();
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.visible !== this.props.visible) {
-      this.toggle();
-    }
-  }
-
-  componentWillUnmount() {
-    if (this.hideTimeout) {
-      clearTimeout(this.hideTimeout);
-    }
-  }
-
-  private toggle = () => {
-    if (this.props.visible) {
-      this.show();
-    } else {
-      this.hide();
-    }
-  };
-
-  private show = () => {
-    if (this.hideTimeout) {
-      clearTimeout(this.hideTimeout);
-    }
-    this.setState({
-      hidden: false,
-    });
-    const { scale } = this.props.theme.animation;
-    Animated.timing(this.state.opacity, {
-      toValue: 1,
-      duration: 200 * scale,
-      useNativeDriver: true,
-    }).start(({ finished }) => {
-      if (finished) {
-        const { duration } = this.props;
-        const isInfinity =
-          duration === Number.POSITIVE_INFINITY ||
-          duration === Number.NEGATIVE_INFINITY;
-
-        if (finished && !isInfinity) {
-          this.hideTimeout = setTimeout(this.props.onDismiss, duration);
-        }
-      }
-    });
-  };
-
-  private hide = () => {
-    if (this.hideTimeout) {
-      clearTimeout(this.hideTimeout);
-    }
-    const { scale } = this.props.theme.animation;
-    Animated.timing(this.state.opacity, {
-      toValue: 0,
-      duration: 100 * scale,
-      useNativeDriver: true,
-    }).start(({ finished }) => {
-      if (finished) {
-        this.setState({ hidden: true });
-      }
-    });
-  };
-
-  private hideTimeout?: number;
-
-  render() {
-    const {
-      children,
-      visible,
-      action,
-      onDismiss,
-      theme,
-      style,
-      wrapperStyle,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      duration,
-      ...rest
-    } = this.props;
-    const { colors, roundness } = theme;
-
-    if (this.state.hidden) {
-      return null;
-    }
-
-    return (
-      <SafeAreaView
-        pointerEvents="box-none"
-        style={[styles.wrapper, wrapperStyle]}
-      >
-        <Surface
-          pointerEvents="box-none"
-          accessibilityLiveRegion="polite"
-          style={
-            [
-              styles.container,
-              {
-                borderRadius: roundness,
-                opacity: this.state.opacity,
-                transform: [
-                  {
-                    scale: visible
-                      ? this.state.opacity.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [0.9, 1],
-                        })
-                      : 1,
-                  },
-                ],
-              },
-              { backgroundColor: colors.onSurface },
-              style,
-            ] as StyleProp<ViewStyle>
+          if (finished && !isInfinity) {
+            hideTimeout.current = setTimeout(onDismiss, duration);
           }
-          {...rest}
+        }
+      });
+    } else {
+      // hide
+      if (hideTimeout.current) clearTimeout(hideTimeout.current);
+
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: 100 * scale,
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (finished) setHidden(true);
+      });
+    }
+  }, [visible, duration, opacity, scale, onDismiss]);
+
+  const { colors, roundness } = theme;
+
+  if (hidden) return null;
+
+  return (
+    <SafeAreaView
+      pointerEvents="box-none"
+      style={[styles.wrapper, wrapperStyle]}
+    >
+      <Surface
+        pointerEvents="box-none"
+        accessibilityLiveRegion="polite"
+        style={
+          [
+            styles.container,
+            {
+              borderRadius: roundness,
+              opacity: opacity,
+              transform: [
+                {
+                  scale: visible
+                    ? opacity.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.9, 1],
+                      })
+                    : 1,
+                },
+              ],
+            },
+            { backgroundColor: colors.onSurface },
+            style,
+          ] as StyleProp<ViewStyle>
+        }
+        {...rest}
+      >
+        <Text
+          style={[
+            styles.content,
+            { marginRight: action ? 0 : 16, color: colors.surface },
+          ]}
         >
-          <Text
-            style={[
-              styles.content,
-              { marginRight: action ? 0 : 16, color: colors.surface },
-            ]}
+          {children}
+        </Text>
+        {action ? (
+          <Button
+            accessibilityLabel={action.accessibilityLabel}
+            onPress={() => {
+              action.onPress();
+              onDismiss();
+            }}
+            style={styles.button}
+            color={colors.accent}
+            compact
+            mode="text"
           >
-            {children}
-          </Text>
-          {action ? (
-            <Button
-              accessibilityLabel={action.accessibilityLabel}
-              onPress={() => {
-                action.onPress();
-                onDismiss();
-              }}
-              style={styles.button}
-              color={colors.accent}
-              compact
-              mode="text"
-            >
-              {action.label}
-            </Button>
-          ) : null}
-        </Surface>
-      </SafeAreaView>
-    );
-  }
-}
+            {action.label}
+          </Button>
+        ) : null}
+      </Surface>
+    </SafeAreaView>
+  );
+};
+
+/**
+ * Show the Snackbar for a short duration.
+ */
+Snackbar.DURATION_SHORT = DURATION_SHORT;
+
+/**
+ * Show the Snackbar for a medium duration.
+ */
+Snackbar.DURATION_MEDIUM = DURATION_MEDIUM;
+
+/**
+ * Show the Snackbar for a long duration.
+ */
+Snackbar.DURATION_LONG = DURATION_LONG;
 
 const styles = StyleSheet.create({
   wrapper: {

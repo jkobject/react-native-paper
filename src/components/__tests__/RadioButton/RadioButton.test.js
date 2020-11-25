@@ -12,7 +12,7 @@ describe('RadioButton', () => {
         const RN = jest.requireActual('react-native');
 
         RN.Platform = () => ({
-          select: objs => objs.default,
+          select: (objs) => objs.default,
         });
 
         return RN;
@@ -32,7 +32,7 @@ describe('RadioButton', () => {
         const RN = jest.requireActual('react-native');
 
         RN.Platform = () => ({
-          select: objs => objs.ios,
+          select: (objs) => objs.ios,
         });
 
         return RN;
@@ -54,6 +54,16 @@ describe('RadioButton', () => {
             <RadioButton value="first" />
           </RadioButtonContext.Provider>
         )
+        .toJSON();
+
+      expect(tree).toMatchSnapshot();
+    });
+  });
+
+  describe('RadioButton with custom testID', () => {
+    it('renders properly', () => {
+      const tree = renderer
+        .create(<RadioButton value="first" testID={'custom:testID'} />)
         .toJSON();
 
       expect(tree).toMatchSnapshot();

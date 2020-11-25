@@ -1,12 +1,95 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders checked Checkbox with color 1`] = `
+exports[`renders Checkbox with custom testID 1`] = `
 <View
-  accessibilityRole="button"
-  accessibilityStates={Array []}
+  accessibilityLiveRegion="polite"
+  accessibilityRole="checkbox"
+  accessibilityState={
+    Object {
+      "checked": true,
+      "disabled": undefined,
+    }
+  }
   accessible={true}
   focusable={false}
-  isTVSelectable={true}
+  onClick={[Function]}
+  onResponderGrant={[Function]}
+  onResponderMove={[Function]}
+  onResponderRelease={[Function]}
+  onResponderTerminate={[Function]}
+  onResponderTerminationRequest={[Function]}
+  onStartShouldSetResponder={[Function]}
+  style={
+    Array [
+      Object {
+        "overflow": "hidden",
+      },
+      Object {
+        "borderRadius": 18,
+        "padding": 6,
+      },
+    ]
+  }
+  testID="custom:testID"
+>
+  <View
+    style={
+      Object {
+        "opacity": 1,
+      }
+    }
+  >
+    <Text
+      accessibilityElementsHidden={true}
+      allowFontScaling={false}
+      importantForAccessibility="no-hide-descendants"
+      pointerEvents="none"
+      style={
+        Array [
+          Object {
+            "color": "#03dac4",
+            "fontSize": 24,
+          },
+          Array [
+            Object {
+              "lineHeight": 24,
+              "transform": Array [
+                Object {
+                  "scaleX": 1,
+                },
+              ],
+            },
+            Object {
+              "backgroundColor": "transparent",
+            },
+          ],
+          Object {
+            "fontFamily": "Material Design Icons",
+            "fontStyle": "normal",
+            "fontWeight": "normal",
+          },
+          Object {},
+        ]
+      }
+    >
+      
+    </Text>
+  </View>
+</View>
+`;
+
+exports[`renders checked Checkbox with color 1`] = `
+<View
+  accessibilityLiveRegion="polite"
+  accessibilityRole="checkbox"
+  accessibilityState={
+    Object {
+      "checked": true,
+      "disabled": undefined,
+    }
+  }
+  accessible={true}
+  focusable={false}
   onClick={[Function]}
   onResponderGrant={[Function]}
   onResponderMove={[Function]}
@@ -46,6 +129,7 @@ exports[`renders checked Checkbox with color 1`] = `
           },
           Array [
             Object {
+              "lineHeight": 24,
               "transform": Array [
                 Object {
                   "scaleX": 1,
@@ -73,11 +157,16 @@ exports[`renders checked Checkbox with color 1`] = `
 
 exports[`renders checked Checkbox with onPress 1`] = `
 <View
-  accessibilityRole="button"
-  accessibilityStates={Array []}
+  accessibilityLiveRegion="polite"
+  accessibilityRole="checkbox"
+  accessibilityState={
+    Object {
+      "checked": true,
+      "disabled": undefined,
+    }
+  }
   accessible={true}
   focusable={true}
-  isTVSelectable={true}
   onClick={[Function]}
   onResponderGrant={[Function]}
   onResponderMove={[Function]}
@@ -117,6 +206,7 @@ exports[`renders checked Checkbox with onPress 1`] = `
           },
           Array [
             Object {
+              "lineHeight": 24,
               "transform": Array [
                 Object {
                   "scaleX": 1,
@@ -144,11 +234,16 @@ exports[`renders checked Checkbox with onPress 1`] = `
 
 exports[`renders indeterminate Checkbox 1`] = `
 <View
-  accessibilityRole="button"
-  accessibilityStates={Array []}
+  accessibilityLiveRegion="polite"
+  accessibilityRole="checkbox"
+  accessibilityState={
+    Object {
+      "checked": false,
+      "disabled": undefined,
+    }
+  }
   accessible={true}
   focusable={true}
-  isTVSelectable={true}
   onClick={[Function]}
   onResponderGrant={[Function]}
   onResponderMove={[Function]}
@@ -188,6 +283,7 @@ exports[`renders indeterminate Checkbox 1`] = `
           },
           Array [
             Object {
+              "lineHeight": 24,
               "transform": Array [
                 Object {
                   "scaleX": 1,
@@ -215,11 +311,16 @@ exports[`renders indeterminate Checkbox 1`] = `
 
 exports[`renders indeterminate Checkbox with color 1`] = `
 <View
-  accessibilityRole="button"
-  accessibilityStates={Array []}
+  accessibilityLiveRegion="polite"
+  accessibilityRole="checkbox"
+  accessibilityState={
+    Object {
+      "checked": false,
+      "disabled": undefined,
+    }
+  }
   accessible={true}
   focusable={false}
-  isTVSelectable={true}
   onClick={[Function]}
   onResponderGrant={[Function]}
   onResponderMove={[Function]}
@@ -259,6 +360,7 @@ exports[`renders indeterminate Checkbox with color 1`] = `
           },
           Array [
             Object {
+              "lineHeight": 24,
               "transform": Array [
                 Object {
                   "scaleX": 1,
@@ -286,11 +388,16 @@ exports[`renders indeterminate Checkbox with color 1`] = `
 
 exports[`renders unchecked Checkbox with color 1`] = `
 <View
-  accessibilityRole="button"
-  accessibilityStates={Array []}
+  accessibilityLiveRegion="polite"
+  accessibilityRole="checkbox"
+  accessibilityState={
+    Object {
+      "checked": true,
+      "disabled": undefined,
+    }
+  }
   accessible={true}
   focusable={false}
-  isTVSelectable={true}
   onClick={[Function]}
   onResponderGrant={[Function]}
   onResponderMove={[Function]}
@@ -330,6 +437,7 @@ exports[`renders unchecked Checkbox with color 1`] = `
           },
           Array [
             Object {
+              "lineHeight": 24,
               "transform": Array [
                 Object {
                   "scaleX": 1,
@@ -357,11 +465,16 @@ exports[`renders unchecked Checkbox with color 1`] = `
 
 exports[`renders unchecked Checkbox with onPress 1`] = `
 <View
-  accessibilityRole="button"
-  accessibilityStates={Array []}
+  accessibilityLiveRegion="polite"
+  accessibilityRole="checkbox"
+  accessibilityState={
+    Object {
+      "checked": false,
+      "disabled": undefined,
+    }
+  }
   accessible={true}
   focusable={true}
-  isTVSelectable={true}
   onClick={[Function]}
   onResponderGrant={[Function]}
   onResponderMove={[Function]}
@@ -401,6 +514,7 @@ exports[`renders unchecked Checkbox with onPress 1`] = `
           },
           Array [
             Object {
+              "lineHeight": 24,
               "transform": Array [
                 Object {
                   "scaleX": 1,

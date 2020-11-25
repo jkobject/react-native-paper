@@ -11,7 +11,6 @@ import {
 import SafeAreaView from 'react-native-safe-area-view';
 import Surface from './Surface';
 import { withTheme } from '../core/theming';
-import { Theme } from '../types';
 
 type Props = {
   /**
@@ -22,6 +21,10 @@ type Props = {
    * Callback that is called when the user dismisses the modal.
    */
   onDismiss?: () => void;
+  /**
+   * Accessibility label for the overlay. This is read by the screen reader when the user taps outside the modal.
+   */
+  overlayAccessibilityLabel?: string;
   /**
    * Determines Whether the modal is visible.
    */
@@ -37,7 +40,7 @@ type Props = {
   /**
    * @optional
    */
-  theme: Theme;
+  theme: ReactNativePaper.Theme;
 };
 
 type State = {
@@ -62,33 +65,28 @@ const DEFAULT_DURATION = 220;
  * import * as React from 'react';
  * import { Modal, Portal, Text, Button, Provider } from 'react-native-paper';
  *
- * export default class MyComponent extends React.Component {
- *   state = {
- *     visible: false,
- *   };
+ * const MyComponent = () => {
+ *   const [visible, setVisible] = React.useState(false);
  *
- *   _showModal = () => this.setState({ visible: true });
- *   _hideModal = () => this.setState({ visible: false });
+ *   const showModal = () => setVisible(true);
+ *   const hideModal = () => setVisible(false);
+ *   const containerStyle = {backgroundColor: 'white', padding: 20};
  *
- *   render() {
- *     const { visible } = this.state;
- *     return (
- *       <Provider>
- *          <Portal>
- *            <Modal visible={visible} onDismiss={this._hideModal}>
- *              <Text>Example Modal</Text>
- *            </Modal>
- *            <Button
- *              style={{ marginTop: 30 }}
- *              onPress={this._showModal}
- *            >
- *              Show
- *            </Button>
- *          </Portal>
- *       </Provider>
- *     );
- *   }
- * }
+ *   return (
+ *     <Provider>
+ *       <Portal>
+ *         <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
+ *           <Text>Example Modal.  Click outside this area to dismiss.</Text>
+ *         </Modal>
+ *       </Portal>
+ *       <Button style={{marginTop: 30}} onPress={showModal}>
+ *         Show
+ *       </Button>
+ *     </Provider>
+ *   );
+ * };
+ *
+ * export default MyComponent;
  * ```
  */
 
@@ -96,6 +94,7 @@ class Modal extends React.Component<Props, State> {
   static defaultProps = {
     dismissable: true,
     visible: false,
+    overlayAccessibilityLabel: 'Close modal',
   };
 
   static getDerivedStateFromProps(nextProps: Props, prevState: State) {
@@ -184,7 +183,13 @@ class Modal extends React.Component<Props, State> {
 
     if (!rendered) return null;
 
-    const { children, dismissable, theme, contentContainerStyle } = this.props;
+    const {
+      children,
+      dismissable,
+      theme,
+      contentContainerStyle,
+      overlayAccessibilityLabel,
+    } = this.props;
     const { colors } = theme;
     return (
       <Animated.View
@@ -192,8 +197,11 @@ class Modal extends React.Component<Props, State> {
         accessibilityViewIsModal
         accessibilityLiveRegion="polite"
         style={StyleSheet.absoluteFill}
+        onAccessibilityEscape={this.hideModal}
       >
         <TouchableWithoutFeedback
+          accessibilityLabel={overlayAccessibilityLabel}
+          accessibilityRole="button"
           disabled={!dismissable}
           onPress={dismissable ? this.hideModal : undefined}
         >

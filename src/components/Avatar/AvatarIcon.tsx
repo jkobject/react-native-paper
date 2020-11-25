@@ -4,8 +4,7 @@ import color from 'color';
 import Icon from '../Icon';
 import { withTheme } from '../../core/theming';
 import { white } from '../../styles/colors';
-import { Theme } from '../../types';
-import { IconSource } from './../Icon';
+import type { IconSource } from './../Icon';
 
 const defaultSize = 64;
 
@@ -26,7 +25,7 @@ type Props = React.ComponentPropsWithRef<typeof View> & {
   /**
    * @optional
    */
-  theme: Theme;
+  theme: ReactNativePaper.Theme;
 };
 
 /**
@@ -48,41 +47,33 @@ type Props = React.ComponentPropsWithRef<typeof View> & {
  * );
  * ```
  */
-class Avatar extends React.Component<Props> {
-  static displayName = 'Avatar.Icon';
+const Avatar = ({ icon, size = defaultSize, style, theme, ...rest }: Props) => {
+  const { backgroundColor = theme.colors.primary, ...restStyle } =
+    StyleSheet.flatten(style) || {};
+  const textColor =
+    rest.color ||
+    (color(backgroundColor).isLight() ? 'rgba(0, 0, 0, .54)' : white);
 
-  static defaultProps = {
-    size: defaultSize,
-  };
+  return (
+    <View
+      style={[
+        {
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          backgroundColor,
+        },
+        styles.container,
+        restStyle,
+      ]}
+      {...rest}
+    >
+      <Icon source={icon} color={textColor} size={size * 0.6} />
+    </View>
+  );
+};
 
-  render() {
-    const { icon, size = defaultSize, style, theme, ...rest } = this.props;
-
-    const { backgroundColor = theme.colors.primary, ...restStyle } =
-      StyleSheet.flatten(style) || {};
-    const textColor =
-      this.props.color ||
-      (color(backgroundColor).isLight() ? 'rgba(0, 0, 0, .54)' : white);
-
-    return (
-      <View
-        style={[
-          {
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            backgroundColor,
-          },
-          styles.container,
-          restStyle,
-        ]}
-        {...rest}
-      >
-        <Icon source={icon} color={textColor} size={size * 0.6} />
-      </View>
-    );
-  }
-}
+Avatar.displayName = 'Avatar.Icon';
 
 const styles = StyleSheet.create({
   container: {

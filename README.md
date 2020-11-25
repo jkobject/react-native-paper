@@ -28,7 +28,7 @@ Currently supported React Native version: `>= 0.50.3`
 
 ## Try it out
 
-Run the [example app](https://snack.expo.io/@satya164/github.com-callstack-react-native-paper:example) with [Expo](https://expo.io/) to see it in action.
+Run the [example app](https://snack.expo.io/@react-native-paper/github.com-callstack-react-native-paper:example) with [Expo](https://expo.io/) to see it in action.
 
 The source code for the examples are under the [/example](/example) folder.
 
@@ -43,6 +43,10 @@ Check the components and their usage in our [documentation](https://callstack.gi
 ## Contributing
 
 Read the [contribution guidelines](/CONTRIBUTING.md) before contributing.
+
+## Figma and Sketch component kits
+
+Use official component kits provided by [Material Design](https://material.io/resources). 
 
 ## Made with ❤️ at Callstack
 

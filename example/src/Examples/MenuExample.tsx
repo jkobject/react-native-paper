@@ -5,7 +5,7 @@ import {
   Platform,
   GestureResponderEvent,
 } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import type { StackNavigationProp } from '@react-navigation/stack';
 import {
   Menu,
   Appbar,
@@ -120,10 +120,7 @@ const MenuExample = ({ navigation }: Props) => {
           <Menu.Item onPress={() => {}} title="Item 3" disabled />
         </Menu>
         <List.Section style={styles.list} title="Contextual menu">
-          <TouchableRipple
-            onPress={() => {}}
-            onLongPress={() => _handleLongPress}
-          >
+          <TouchableRipple onPress={() => {}} onLongPress={_handleLongPress}>
             <List.Item
               title="List item"
               description="Long press me to open contextual menu"

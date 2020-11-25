@@ -13,11 +13,9 @@ import ActivityIndicator from './ActivityIndicator';
 import Icon, { IconSource } from './Icon';
 import Surface from './Surface';
 import Text from './Typography/Text';
-import TouchableRipple from './TouchableRipple';
+import TouchableRipple from './TouchableRipple/TouchableRipple';
 import { black, white } from '../styles/colors';
 import { withTheme } from '../core/theming';
-
-import { Theme } from '../types';
 
 type Props = React.ComponentProps<typeof Surface> & {
   /**
@@ -68,6 +66,10 @@ type Props = React.ComponentProps<typeof Surface> & {
    */
   onPress?: () => void;
   /**
+   * Function to execute on long press.
+   */
+  onLongPress?: () => void;
+  /**
    * Style of button's inner content.
    * Use this prop to apply custom height and width.
    */
@@ -80,15 +82,11 @@ type Props = React.ComponentProps<typeof Surface> & {
   /**
    * @optional
    */
-  theme: Theme;
+  theme: ReactNativePaper.Theme;
   /**
    * testID to be used on tests.
    */
   testID?: string;
-};
-
-type State = {
-  elevation: Animated.Value;
 };
 
 /**
@@ -123,199 +121,189 @@ type State = {
  * export default MyComponent;
  * ```
  */
-class Button extends React.Component<Props, State> {
-  static defaultProps: Partial<Props> = {
-    mode: 'text',
-    uppercase: true,
-  };
+const Button = ({
+  disabled,
+  compact,
+  mode = 'text',
+  dark,
+  loading,
+  icon,
+  color: buttonColor,
+  children,
+  uppercase = true,
+  accessibilityLabel,
+  onPress,
+  onLongPress,
+  style,
+  theme,
+  contentStyle,
+  labelStyle,
+  testID,
+  ...rest
+}: Props) => {
+  const { current: elevation } = React.useRef<Animated.Value>(
+    new Animated.Value(mode === 'contained' ? 2 : 0)
+  );
 
-  state = {
-    elevation: new Animated.Value(this.props.mode === 'contained' ? 2 : 0),
-  };
-
-  private handlePressIn = () => {
-    if (this.props.mode === 'contained') {
-      const { scale } = this.props.theme.animation;
-      Animated.timing(this.state.elevation, {
+  const handlePressIn = () => {
+    if (mode === 'contained') {
+      const { scale } = theme.animation;
+      Animated.timing(elevation, {
         toValue: 8,
         duration: 200 * scale,
-        useNativeDriver: false,
+        useNativeDriver: true,
       }).start();
     }
   };
 
-  private handlePressOut = () => {
-    if (this.props.mode === 'contained') {
-      const { scale } = this.props.theme.animation;
-      Animated.timing(this.state.elevation, {
+  const handlePressOut = () => {
+    if (mode === 'contained') {
+      const { scale } = theme.animation;
+      Animated.timing(elevation, {
         toValue: 2,
         duration: 150 * scale,
-        useNativeDriver: false,
+        useNativeDriver: true,
       }).start();
     }
   };
 
-  render() {
-    const {
-      disabled,
-      compact,
-      mode,
-      dark,
-      loading,
-      icon,
-      color: buttonColor,
-      children,
-      uppercase,
-      accessibilityLabel,
-      onPress,
-      style,
-      theme,
-      contentStyle,
-      labelStyle,
-      testID,
-      ...rest
-    } = this.props;
-    const { colors, roundness } = theme;
-    const font = theme.fonts.medium;
+  const { colors, roundness } = theme;
+  const font = theme.fonts.medium;
 
-    let backgroundColor, borderColor, textColor, borderWidth;
+  let backgroundColor, borderColor, textColor, borderWidth;
 
-    if (mode === 'contained') {
-      if (disabled) {
-        backgroundColor = color(theme.dark ? white : black)
-          .alpha(0.12)
-          .rgb()
-          .string();
-      } else if (buttonColor) {
-        backgroundColor = buttonColor;
-      } else {
-        backgroundColor = colors.primary;
-      }
-    } else {
-      backgroundColor = 'transparent';
-    }
-
-    if (mode === 'outlined') {
-      borderColor = color(theme.dark ? white : black)
-        .alpha(0.29)
-        .rgb()
-        .string();
-      borderWidth = StyleSheet.hairlineWidth;
-    } else {
-      borderColor = 'transparent';
-      borderWidth = 0;
-    }
-
+  if (mode === 'contained') {
     if (disabled) {
-      textColor = color(theme.dark ? white : black)
-        .alpha(0.32)
+      backgroundColor = color(theme.dark ? white : black)
+        .alpha(0.12)
         .rgb()
         .string();
-    } else if (mode === 'contained') {
-      let isDark;
-
-      if (typeof dark === 'boolean') {
-        isDark = dark;
-      } else {
-        isDark =
-          backgroundColor === 'transparent'
-            ? false
-            : !color(backgroundColor).isLight();
-      }
-
-      textColor = isDark ? white : black;
     } else if (buttonColor) {
-      textColor = buttonColor;
+      backgroundColor = buttonColor;
     } else {
-      textColor = colors.primary;
+      backgroundColor = colors.primary;
     }
+  } else {
+    backgroundColor = 'transparent';
+  }
 
-    const rippleColor = color(textColor)
+  if (mode === 'outlined') {
+    borderColor = color(theme.dark ? white : black)
+      .alpha(0.29)
+      .rgb()
+      .string();
+    borderWidth = StyleSheet.hairlineWidth;
+  } else {
+    borderColor = 'transparent';
+    borderWidth = 0;
+  }
+
+  if (disabled) {
+    textColor = color(theme.dark ? white : black)
       .alpha(0.32)
       .rgb()
       .string();
-    const buttonStyle = {
-      backgroundColor,
-      borderColor,
-      borderWidth,
-      borderRadius: roundness,
-    };
-    const touchableStyle = {
-      borderRadius: style
-        ? StyleSheet.flatten(style).borderRadius || roundness
-        : roundness,
-    };
+  } else if (mode === 'contained') {
+    let isDark;
 
-    const { color: customLabelColor, fontSize: customLabelSize } =
-      StyleSheet.flatten(labelStyle) || {};
+    if (typeof dark === 'boolean') {
+      isDark = dark;
+    } else {
+      isDark =
+        backgroundColor === 'transparent'
+          ? false
+          : !color(backgroundColor).isLight();
+    }
 
-    const textStyle = { color: textColor, ...font };
-    const elevation =
-      disabled || mode !== 'contained' ? 0 : this.state.elevation;
+    textColor = isDark ? white : black;
+  } else if (buttonColor) {
+    textColor = buttonColor;
+  } else {
+    textColor = colors.primary;
+  }
 
-    return (
-      <Surface
-        {...rest}
-        style={[
-          styles.button,
-          compact && styles.compact,
-          { elevation } as ViewStyle,
-          buttonStyle,
-          style,
-        ]}
+  const rippleColor = color(textColor).alpha(0.32).rgb().string();
+  const buttonStyle = {
+    backgroundColor,
+    borderColor,
+    borderWidth,
+    borderRadius: roundness,
+  };
+  const touchableStyle = {
+    borderRadius: style
+      ? StyleSheet.flatten(style).borderRadius || roundness
+      : roundness,
+  };
+
+  const { color: customLabelColor, fontSize: customLabelSize } =
+    StyleSheet.flatten(labelStyle) || {};
+
+  const textStyle = { color: textColor, ...font };
+  const elevationRes = disabled || mode !== 'contained' ? 0 : elevation;
+
+  return (
+    <Surface
+      {...rest}
+      style={[
+        styles.button,
+        compact && styles.compact,
+        { elevation: elevationRes } as ViewStyle,
+        buttonStyle,
+        style,
+      ]}
+    >
+      <TouchableRipple
+        borderless
+        delayPressIn={0}
+        onPress={onPress}
+        onLongPress={onLongPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityTraits={disabled ? ['button', 'disabled'] : 'button'}
+        accessibilityComponentType="button"
+        accessibilityRole="button"
+        accessibilityState={{ disabled }}
+        disabled={disabled}
+        rippleColor={rippleColor}
+        style={touchableStyle}
+        testID={testID}
       >
-        <TouchableRipple
-          borderless
-          delayPressIn={0}
-          onPress={onPress}
-          onPressIn={this.handlePressIn}
-          onPressOut={this.handlePressOut}
-          accessibilityLabel={accessibilityLabel}
-          accessibilityTraits={disabled ? ['button', 'disabled'] : 'button'}
-          accessibilityComponentType="button"
-          accessibilityRole="button"
-          accessibilityStates={disabled ? ['disabled'] : []}
-          disabled={disabled}
-          rippleColor={rippleColor}
-          style={touchableStyle}
-          testID={testID}
-        >
-          <View style={[styles.content, contentStyle]}>
-            {icon && loading !== true ? (
-              <View style={styles.icon}>
-                <Icon
-                  source={icon}
-                  size={customLabelSize || 16}
-                  color={customLabelColor || textColor}
-                />
-              </View>
-            ) : null}
-            {loading ? (
-              <ActivityIndicator
+        <View style={[styles.content, contentStyle]}>
+          {icon && loading !== true ? (
+            <View style={styles.icon}>
+              <Icon
+                source={icon}
                 size={customLabelSize || 16}
                 color={customLabelColor || textColor}
-                style={styles.icon}
               />
-            ) : null}
-            <Text
-              numberOfLines={1}
-              style={[
-                styles.label,
-                compact && styles.compactLabel,
-                uppercase && styles.uppercaseLabel,
-                textStyle,
-                font,
-                labelStyle,
-              ]}
-            >
-              {children}
-            </Text>
-          </View>
-        </TouchableRipple>
-      </Surface>
-    );
-  }
-}
+            </View>
+          ) : null}
+          {loading ? (
+            <ActivityIndicator
+              size={customLabelSize || 16}
+              color={customLabelColor || textColor}
+              style={styles.icon}
+            />
+          ) : null}
+          <Text
+            numberOfLines={1}
+            style={[
+              styles.label,
+              compact && styles.compactLabel,
+              uppercase && styles.uppercaseLabel,
+              textStyle,
+              font,
+              labelStyle,
+            ]}
+          >
+            {children}
+          </Text>
+        </View>
+      </TouchableRipple>
+    </Surface>
+  );
+};
 
 const styles = StyleSheet.create({
   button: {

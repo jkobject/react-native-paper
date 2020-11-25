@@ -2,7 +2,7 @@ import * as React from 'react';
 import { FlatList } from 'react-native';
 import { List, Divider, useTheme } from 'react-native-paper';
 import { useSafeArea } from 'react-native-safe-area-context';
-import { StackNavigationProp } from '@react-navigation/stack';
+import type { StackNavigationProp } from '@react-navigation/stack';
 
 import ActivityIndicatorExample from './Examples/ActivityIndicatorExample';
 import AppbarExample from './Examples/AppbarExample';
@@ -13,6 +13,7 @@ import BottomNavigationExample from './Examples/BottomNavigationExample';
 import ButtonExample from './Examples/ButtonExample';
 import CardExample from './Examples/CardExample';
 import CheckboxExample from './Examples/CheckboxExample';
+import CheckboxItemExample from './Examples/CheckboxItemExample';
 import ChipExample from './Examples/ChipExample';
 import DataTableExample from './Examples/DataTableExample';
 import DialogExample from './Examples/DialogExample';
@@ -34,6 +35,8 @@ import TextExample from './Examples/TextExample';
 import TextInputExample from './Examples/TextInputExample';
 import ToggleButtonExample from './Examples/ToggleButtonExample';
 import TouchableRippleExample from './Examples/TouchableRippleExample';
+import ThemeExample from './Examples/ThemeExample';
+import RadioButtonItemExample from './Examples/RadioButtonItemExample';
 
 export const examples: Record<
   string,
@@ -48,6 +51,7 @@ export const examples: Record<
   button: ButtonExample,
   card: CardExample,
   checkbox: CheckboxExample,
+  checkboxItem: CheckboxItemExample,
   chip: ChipExample,
   dataTable: DataTableExample,
   dialog: DialogExample,
@@ -61,6 +65,7 @@ export const examples: Record<
   progressbar: ProgressBarExample,
   radio: RadioButtonExample,
   radioGroup: RadioButtonGroupExample,
+  radioItem: RadioButtonItemExample,
   searchbar: SearchbarExample,
   snackbar: SnackbarExample,
   surface: SurfaceExample,
@@ -69,6 +74,7 @@ export const examples: Record<
   textInput: TextInputExample,
   toggleButton: ToggleButtonExample,
   touchableRipple: TouchableRippleExample,
+  theme: ThemeExample,
 };
 
 type Props = {

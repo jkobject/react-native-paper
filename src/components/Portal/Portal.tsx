@@ -6,7 +6,6 @@ import {
   Consumer as SettingsConsumer,
 } from '../../core/settings';
 import { ThemeProvider, withTheme } from '../../core/theming';
-import { Theme } from '../../types';
 
 type Props = {
   /**
@@ -16,7 +15,7 @@ type Props = {
   /**
    * @optional
    */
-  theme: Theme;
+  theme: ReactNativePaper.Theme;
 };
 
 /**
@@ -29,15 +28,13 @@ type Props = {
  * import * as React from 'react';
  * import { Portal, Text } from 'react-native-paper';
  *
- * export default class MyComponent extends React.Component {
- *   render() {
- *     return (
- *       <Portal>
- *         <Text>This is rendered at a different place</Text>
- *       </Portal>
- *     );
- *   }
- * }
+ * const MyComponent = () => (
+ *   <Portal>
+ *     <Text>This is rendered at a different place</Text>
+ *   </Portal>
+ * );
+ *
+ * export default MyComponent;
  * ```
  */
 class Portal extends React.Component<Props> {
@@ -49,9 +46,9 @@ class Portal extends React.Component<Props> {
 
     return (
       <SettingsConsumer>
-        {settings => (
+        {(settings) => (
           <PortalContext.Consumer>
-            {manager => (
+            {(manager) => (
               <PortalConsumer manager={manager as PortalMethods}>
                 <SettingsProvider value={settings}>
                   <ThemeProvider theme={theme}>{children}</ThemeProvider>

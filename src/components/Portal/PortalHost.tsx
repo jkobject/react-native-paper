@@ -30,15 +30,13 @@ export const PortalContext = React.createContext<PortalMethods>(null as any);
  * import { Text } from 'react-native';
  * import { Portal } from 'react-native-paper';
  *
- * export default class MyComponent extends React.Component {
- *   render() {
- *     return (
- *       <Portal.Host>
- *         <Text>Content of the app</Text>
- *       </Portal.Host>
- *     );
- *   }
- * }
+ * const MyComponent = () => (
+ *   <Portal.Host>
+ *     <Text>Content of the app</Text>
+ *   </Portal.Host>
+ * );
+ *
+ * export default MyComponent;
  * ```
  *
  * Here any `Portal` elements under `<App />` are rendered alongside `<App />` and will appear above `<App />` like a `Modal`.
@@ -91,7 +89,7 @@ export default class PortalHost extends React.Component<Props> {
     } else {
       const op = { type: 'mount', key, children };
       const index = this.queue.findIndex(
-        o => o.type === 'mount' || (o.type === 'update' && o.key === key)
+        (o) => o.type === 'mount' || (o.type === 'update' && o.key === key)
       );
 
       if (index > -1) {

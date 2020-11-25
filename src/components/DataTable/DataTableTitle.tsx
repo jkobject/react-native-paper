@@ -12,7 +12,6 @@ import color from 'color';
 import MaterialCommunityIcon from '../MaterialCommunityIcon';
 import Text from '../Typography/Text';
 import { withTheme } from '../../core/theming';
-import { Theme } from '../../types';
 
 type Props = React.ComponentPropsWithRef<typeof TouchableWithoutFeedback> & {
   /**
@@ -39,11 +38,7 @@ type Props = React.ComponentPropsWithRef<typeof TouchableWithoutFeedback> & {
   /**
    * @optional
    */
-  theme: Theme;
-};
-
-type State = {
-  spinAnim: Animated.Value;
+  theme: ReactNativePaper.Theme;
 };
 
 /**
@@ -73,90 +68,72 @@ type State = {
  *           <DataTable.Title numeric>Fat (g)</DataTable.Title>
  *         </DataTable.Header>
  *       </DataTable>
- *   </Card>
  * );
  *
  * export default MyComponent;
  * ```
  */
 
-class DataTableTitle extends React.Component<Props, State> {
-  static displayName = 'DataTable.Title';
+const DataTableTitle = ({
+  numeric,
+  children,
+  onPress,
+  sortDirection,
+  theme,
+  style,
+  numberOfLines = 1,
+  ...rest
+}: Props) => {
+  const { current: spinAnim } = React.useRef<Animated.Value>(
+    new Animated.Value(sortDirection === 'ascending' ? 0 : 1)
+  );
 
-  static defaultProps = {
-    numberOfLines: 1,
-  };
-
-  state = {
-    spinAnim: new Animated.Value(
-      this.props.sortDirection === 'ascending' ? 0 : 1
-    ),
-  };
-
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.sortDirection === this.props.sortDirection) {
-      return;
-    }
-
-    Animated.timing(this.state.spinAnim, {
-      toValue: this.props.sortDirection === 'ascending' ? 0 : 1,
+  React.useEffect(() => {
+    Animated.timing(spinAnim, {
+      toValue: sortDirection === 'ascending' ? 0 : 1,
       duration: 150,
       useNativeDriver: true,
     }).start();
-  }
+  }, [sortDirection, spinAnim]);
 
-  render() {
-    const {
-      numeric,
-      children,
-      onPress,
-      sortDirection,
-      theme,
-      style,
-      numberOfLines,
-      ...rest
-    } = this.props;
+  const textColor = color(theme.colors.text).alpha(0.6).rgb().string();
 
-    const textColor = color(theme.colors.text)
-      .alpha(0.6)
-      .rgb()
-      .string();
+  const spin = spinAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '180deg'],
+  });
 
-    const spin = this.state.spinAnim.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['0deg', '180deg'],
-    });
+  const icon = sortDirection ? (
+    <Animated.View style={[styles.icon, { transform: [{ rotate: spin }] }]}>
+      <MaterialCommunityIcon
+        name="arrow-down"
+        size={16}
+        color={theme.colors.text}
+        direction={I18nManager.isRTL ? 'rtl' : 'ltr'}
+      />
+    </Animated.View>
+  ) : null;
 
-    const icon = sortDirection ? (
-      <Animated.View style={[styles.icon, { transform: [{ rotate: spin }] }]}>
-        <MaterialCommunityIcon
-          name="arrow-down"
-          size={16}
-          color={theme.colors.text}
-          direction={I18nManager.isRTL ? 'rtl' : 'ltr'}
-        />
-      </Animated.View>
-    ) : null;
+  return (
+    <TouchableWithoutFeedback disabled={!onPress} onPress={onPress} {...rest}>
+      <View style={[styles.container, numeric && styles.right, style]}>
+        {icon}
 
-    return (
-      <TouchableWithoutFeedback disabled={!onPress} onPress={onPress} {...rest}>
-        <View style={[styles.container, numeric && styles.right, style]}>
-          {icon}
+        <Text
+          style={[
+            styles.cell,
+            sortDirection ? styles.sorted : { color: textColor },
+          ]}
+          numberOfLines={numberOfLines}
+        >
+          {children}
+        </Text>
+      </View>
+    </TouchableWithoutFeedback>
+  );
+};
 
-          <Text
-            style={[
-              styles.cell,
-              sortDirection ? styles.sorted : { color: textColor },
-            ]}
-            numberOfLines={numberOfLines}
-          >
-            {children}
-          </Text>
-        </View>
-      </TouchableWithoutFeedback>
-    );
-  }
-}
+DataTableTitle.displayName = 'DataTable.Title';
 
 const styles = StyleSheet.create({
   container: {
