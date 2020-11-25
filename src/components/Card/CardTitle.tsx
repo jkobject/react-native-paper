@@ -10,6 +10,7 @@ import {
 import { withTheme } from '../../core/theming';
 import Caption from './../Typography/Caption';
 import Title from './../Typography/Title';
+import { Theme } from '../../types';
 
 type Props = React.ComponentPropsWithRef<typeof View> & {
   /**
@@ -21,10 +22,6 @@ type Props = React.ComponentPropsWithRef<typeof View> & {
    */
   titleStyle?: StyleProp<TextStyle>;
   /**
-   * Number of lines for the title.
-   */
-  titleNumberOfLines?: number;
-  /**
    * Text for the subtitle. Note that this will only accept a string or `<Text>`-based node.
    */
   subtitle?: React.ReactNode;
@@ -33,7 +30,7 @@ type Props = React.ComponentPropsWithRef<typeof View> & {
    */
   subtitleStyle?: StyleProp<TextStyle>;
   /**
-   * Number of lines for the subtitle.
+   * Number of line for the subtitle.
    */
   subtitleNumberOfLines?: number;
   /**
@@ -64,7 +61,7 @@ type Props = React.ComponentPropsWithRef<typeof View> & {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
 };
 
 const LEFT_SIZE = 40;
@@ -93,65 +90,72 @@ const LEFT_SIZE = 40;
  * export default MyComponent;
  * ```
  */
-const CardTitle = ({
-  title,
-  titleStyle,
-  titleNumberOfLines = 1,
-  subtitle,
-  subtitleStyle,
-  subtitleNumberOfLines = 1,
-  left,
-  leftStyle,
-  right,
-  rightStyle,
-  style,
-}: Props) => {
-  return (
-    <View
-      style={[
-        styles.container,
-        { minHeight: subtitle || left || right ? 72 : 50 },
-        style,
-      ]}
-    >
-      {left ? (
-        <View style={[styles.left, leftStyle]}>
-          {left({
-            size: LEFT_SIZE,
-          })}
+class CardTitle extends React.Component<Props> {
+  static displayName = 'Card.Title';
+
+  static defaultProps = {
+    subtitleNumberOfLines: 1,
+  };
+
+  render() {
+    const {
+      left,
+      leftStyle,
+      right,
+      rightStyle,
+      subtitle,
+      subtitleStyle,
+      subtitleNumberOfLines,
+      style,
+      title,
+      titleStyle,
+    } = this.props;
+
+    return (
+      <View
+        style={[
+          styles.container,
+          { minHeight: subtitle || left || right ? 72 : 50 },
+          style,
+        ]}
+      >
+        {left ? (
+          <View style={[styles.left, leftStyle]}>
+            {left({
+              size: LEFT_SIZE,
+            })}
+          </View>
+        ) : null}
+
+        <View style={[styles.titles]}>
+          {title ? (
+            <Title
+              style={[
+                styles.title,
+                { marginBottom: subtitle ? 0 : 2 },
+                titleStyle,
+              ]}
+              numberOfLines={1}
+            >
+              {title}
+            </Title>
+          ) : null}
+
+          {subtitle ? (
+            <Caption
+              style={[styles.subtitle, subtitleStyle]}
+              numberOfLines={subtitleNumberOfLines}
+            >
+              {subtitle}
+            </Caption>
+          ) : null}
         </View>
-      ) : null}
 
-      <View style={[styles.titles]}>
-        {title ? (
-          <Title
-            style={[
-              styles.title,
-              { marginBottom: subtitle ? 0 : 2 },
-              titleStyle,
-            ]}
-            numberOfLines={titleNumberOfLines}
-          >
-            {title}
-          </Title>
-        ) : null}
-
-        {subtitle ? (
-          <Caption
-            style={[styles.subtitle, subtitleStyle]}
-            numberOfLines={subtitleNumberOfLines}
-          >
-            {subtitle}
-          </Caption>
-        ) : null}
+        <View style={rightStyle}>{right ? right({ size: 24 }) : null}</View>
       </View>
-
-      <View style={rightStyle}>{right ? right({ size: 24 }) : null}</View>
-    </View>
-  );
-};
-
-CardTitle.displayName = 'Card.Title';
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {

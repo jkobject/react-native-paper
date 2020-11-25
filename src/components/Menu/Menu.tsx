@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 
 import { withTheme } from '../../core/theming';
-import type { $Omit } from '../../types';
+import { Theme, $Omit } from '../../types';
 import Portal from '../Portal/Portal';
 import Surface from '../Surface';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -45,10 +45,6 @@ type Props = {
    */
   onDismiss: () => void;
   /**
-   * Accessibility label for the overlay. This is read by the screen reader when the user taps outside the menu.
-   */
-  overlayAccessibilityLabel?: string;
-  /**
    * Content of the `Menu`.
    */
   children: React.ReactNode;
@@ -60,7 +56,7 @@ type Props = {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
 };
 
 type Layout = $Omit<$Omit<LayoutRectangle, 'x'>, 'y'>;
@@ -94,38 +90,43 @@ const EASING = Easing.bezier(0.4, 0, 0.2, 1);
  * ```js
  * import * as React from 'react';
  * import { View } from 'react-native';
- * import { Button, Menu, Divider, Provider } from 'react-native-paper';
+ * import { Button, Paragraph, Menu, Divider, Provider } from 'react-native-paper';
  *
- * const MyComponent = () => {
- *   const [visible, setVisible] = React.useState(false);
+ * export default class MyComponent extends React.Component {
+ *   state = {
+ *     visible: false,
+ *   };
  *
- *   const openMenu = () => setVisible(true);
+ *   _openMenu = () => this.setState({ visible: true });
  *
- *   const closeMenu = () => setVisible(false);
+ *   _closeMenu = () => this.setState({ visible: false });
  *
- *   return (
- *     <Provider>
- *       <View
- *         style={{
- *           paddingTop: 50,
- *           flexDirection: 'row',
- *           justifyContent: 'center',
- *         }}>
- *         <Menu
- *           visible={visible}
- *           onDismiss={closeMenu}
- *           anchor={<Button onPress={openMenu}>Show menu</Button>}>
- *           <Menu.Item onPress={() => {}} title="Item 1" />
- *           <Menu.Item onPress={() => {}} title="Item 2" />
- *           <Divider />
- *           <Menu.Item onPress={() => {}} title="Item 3" />
- *         </Menu>
- *       </View>
- *     </Provider>
- *   );
- * };
- *
- * export default MyComponent;
+ *   render() {
+ *     return (
+ *       <Provider>
+ *         <View
+ *           style={{
+ *             paddingTop: 50,
+ *             flexDirection: 'row',
+ *             justifyContent: 'center'
+ *           }}>
+ *           <Menu
+ *             visible={this.state.visible}
+ *             onDismiss={this._closeMenu}
+ *             anchor={
+ *               <Button onPress={this._openMenu}>Show menu</Button>
+ *             }
+ *           >
+ *             <Menu.Item onPress={() => {}} title="Item 1" />
+ *             <Menu.Item onPress={() => {}} title="Item 2" />
+ *             <Divider />
+ *             <Menu.Item onPress={() => {}} title="Item 3" />
+ *           </Menu>
+ *         </View>
+ *       </Provider>
+ *     );
+ *   }
+ * }
  * ```
  */
 class Menu extends React.Component<Props, State> {
@@ -134,7 +135,6 @@ class Menu extends React.Component<Props, State> {
 
   static defaultProps = {
     statusBarHeight: APPROX_STATUSBAR_HEIGHT,
-    overlayAccessibilityLabel: 'Close menu',
   };
 
   static getDerivedStateFromProps(nextProps: Props, prevState: State) {
@@ -171,7 +171,7 @@ class Menu extends React.Component<Props, State> {
   private isAnchorCoord = () => !React.isValidElement(this.props.anchor);
 
   private measureMenuLayout = () =>
-    new Promise<LayoutRectangle>((resolve) => {
+    new Promise<LayoutRectangle>(resolve => {
       if (this.menu) {
         this.menu.measureInWindow((x, y, width, height) => {
           resolve({ x, y, width, height });
@@ -180,7 +180,7 @@ class Menu extends React.Component<Props, State> {
     });
 
   private measureAnchorLayout = () =>
-    new Promise<LayoutRectangle>((resolve) => {
+    new Promise<LayoutRectangle>(resolve => {
       const { anchor } = this.props;
       if (this.isAnchorCoord()) {
         // @ts-ignore
@@ -325,7 +325,7 @@ class Menu extends React.Component<Props, State> {
       duration: ANIMATION_DURATION * animation.scale,
       easing: EASING,
       useNativeDriver: true,
-    }).start(({ finished }) => {
+    }).start(finished => {
       if (finished) {
         this.setState({ menuLayout: { width: 0, height: 0 }, rendered: false });
         this.state.scaleAnimation.setValue({ x: 0, y: 0 });
@@ -344,7 +344,6 @@ class Menu extends React.Component<Props, State> {
       theme,
       statusBarHeight,
       onDismiss,
-      overlayAccessibilityLabel,
     } = this.props;
 
     const {
@@ -528,7 +527,7 @@ class Menu extends React.Component<Props, State> {
 
     return (
       <View
-        ref={(ref) => {
+        ref={ref => {
           this.anchor = ref;
         }}
         collapsable={false}
@@ -536,22 +535,17 @@ class Menu extends React.Component<Props, State> {
         {this.isAnchorCoord() ? null : anchor}
         {rendered ? (
           <Portal>
-            <TouchableWithoutFeedback
-              accessibilityLabel={overlayAccessibilityLabel}
-              accessibilityRole="button"
-              onPress={onDismiss}
-            >
+            <TouchableWithoutFeedback onPress={onDismiss}>
               <View style={StyleSheet.absoluteFill} />
             </TouchableWithoutFeedback>
             <View
-              ref={(ref) => {
+              ref={ref => {
                 this.menu = ref;
               }}
               collapsable={false}
               accessibilityViewIsModal={visible}
               style={[styles.wrapper, positionStyle, style]}
               pointerEvents={visible ? 'box-none' : 'none'}
-              onAccessibilityEscape={onDismiss}
             >
               <Animated.View style={{ transform: positionTransforms }}>
                 <Surface

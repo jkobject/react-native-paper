@@ -39,60 +39,66 @@ type Props = React.ComponentPropsWithRef<typeof View> & {
  * import * as React from 'react';
  * import { DataTable } from 'react-native-paper';
  *
- * const MyComponent = () => (
- *   <DataTable>
- *     <DataTable.Header>
- *       <DataTable.Title>Dessert</DataTable.Title>
- *       <DataTable.Title numeric>Calories</DataTable.Title>
- *       <DataTable.Title numeric>Fat</DataTable.Title>
- *     </DataTable.Header>
+ * export default class MyComponent extends React.Component {
+ *   render() {
+ *     return (
+ *       <DataTable>
+ *         <DataTable.Header>
+ *           <DataTable.Title>Dessert</DataTable.Title>
+ *           <DataTable.Title numeric>Calories</DataTable.Title>
+ *           <DataTable.Title numeric>Fat</DataTable.Title>
+ *         </DataTable.Header>
  *
- *     <DataTable.Row>
- *       <DataTable.Cell>Frozen yogurt</DataTable.Cell>
- *       <DataTable.Cell numeric>159</DataTable.Cell>
- *       <DataTable.Cell numeric>6.0</DataTable.Cell>
- *     </DataTable.Row>
+ *         <DataTable.Row>
+ *           <DataTable.Cell>Frozen yogurt</DataTable.Cell>
+ *           <DataTable.Cell numeric>159</DataTable.Cell>
+ *           <DataTable.Cell numeric>6.0</DataTable.Cell>
+ *         </DataTable.Row>
  *
- *     <DataTable.Row>
- *       <DataTable.Cell>Ice cream sandwich</DataTable.Cell>
- *       <DataTable.Cell numeric>237</DataTable.Cell>
- *       <DataTable.Cell numeric>8.0</DataTable.Cell>
- *     </DataTable.Row>
+ *         <DataTable.Row>
+ *           <DataTable.Cell>Ice cream sandwich</DataTable.Cell>
+ *           <DataTable.Cell numeric>237</DataTable.Cell>
+ *           <DataTable.Cell numeric>8.0</DataTable.Cell>
+ *         </DataTable.Row>
  *
- *     <DataTable.Pagination
- *       page={1}
- *       numberOfPages={3}
- *       onPageChange={page => {
- *         console.log(page);
- *       }}
- *       label="1-2 of 6"
- *     />
- *   </DataTable>
- * );
- *
- * export default MyComponent;
+ *         <DataTable.Pagination
+ *           page={1}
+ *           numberOfPages={3}
+ *           onPageChange={(page) => { console.log(page); }}
+ *           label="1-2 of 6"
+ *         />
+ *       </DataTable>
+ *     );
+ *   }
+ * }
  * ```
  */
-const DataTable = ({ children, style, ...rest }: Props) => (
-  <View {...rest} style={[styles.container, style]}>
-    {children}
-  </View>
-);
+class DataTable extends React.Component<Props> {
+  // @component ./DataTableHeader.tsx
+  static Header = DataTableHeader;
 
-// @component ./DataTableHeader.tsx
-DataTable.Header = DataTableHeader;
+  // @component ./DataTableTitle.tsx
+  static Title = DataTableTitle;
 
-// @component ./DataTableTitle.tsx
-DataTable.Title = DataTableTitle;
+  // @component ./DataTableRow.tsx
+  static Row = DataTableRow;
 
-// @component ./DataTableRow.tsx
-DataTable.Row = DataTableRow;
+  // @component ./DataTableCell.tsx
+  static Cell = DataTableCell;
 
-// @component ./DataTableCell.tsx
-DataTable.Cell = DataTableCell;
+  // @component ./DataTablePagination.tsx
+  static Pagination = DataTablePagination;
 
-// @component ./DataTablePagination.tsx
-DataTable.Pagination = DataTablePagination;
+  render() {
+    const { children, style, ...rest } = this.props;
+
+    return (
+      <View {...rest} style={[styles.container, style]}>
+        {children}
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import setColor from 'color';
 import { withTheme } from '../core/theming';
+import { Theme } from '../types';
 
 type Props = React.ComponentPropsWithRef<typeof View> & {
   /**
@@ -33,7 +34,13 @@ type Props = React.ComponentPropsWithRef<typeof View> & {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
+};
+
+type State = {
+  width: number;
+  fade: Animated.Value;
+  timer: Animated.Value;
 };
 
 const INDETERMINATE_DURATION = 2000;
@@ -59,29 +66,54 @@ const { isRTL } = I18nManager;
  * export default MyComponent;
  * ```
  */
-const ProgressBar = ({
-  color,
-  indeterminate,
-  style,
-  progress = 0,
-  visible = true,
-  theme,
-  ...rest
-}: Props) => {
-  const { current: timer } = React.useRef<Animated.Value>(
-    new Animated.Value(0)
-  );
-  const { current: fade } = React.useRef<Animated.Value>(new Animated.Value(0));
-  const [width, setWidth] = React.useState<number>(0);
-  const [prevWidth, setPrevWidth] = React.useState<number>(0);
+class ProgressBar extends React.Component<Props, State> {
+  static defaultProps = {
+    visible: true,
+    progress: 0,
+  };
 
-  const indeterminateAnimation = React.useRef<Animated.CompositeAnimation | null>(
-    null
-  );
+  state = {
+    width: 0,
+    timer: new Animated.Value(0),
+    fade: new Animated.Value(0),
+  };
 
-  const { scale } = theme.animation;
+  indeterminateAnimation: Animated.CompositeAnimation | null = null;
 
-  const startAnimation = React.useCallback(() => {
+  componentDidUpdate(prevProps: Props) {
+    const { visible, progress } = this.props;
+
+    if (progress !== prevProps.progress || visible !== prevProps.visible) {
+      if (visible) {
+        this.startAnimation();
+      } else {
+        this.stopAnimation();
+      }
+    }
+  }
+
+  private onLayout = (event: LayoutChangeEvent) => {
+    const { visible } = this.props;
+    const { width: previousWidth } = this.state;
+
+    this.setState({ width: event.nativeEvent.layout.width }, () => {
+      // Start animation the very first time when previously the width was unclear
+      if (visible && previousWidth === 0) {
+        this.startAnimation();
+      }
+    });
+  };
+
+  private startAnimation = () => {
+    const {
+      indeterminate,
+      progress,
+      theme: {
+        animation: { scale },
+      },
+    } = this.props;
+    const { fade, timer } = this.state;
+
     // Show progress bar
     Animated.timing(fade, {
       duration: 200 * scale,
@@ -92,8 +124,8 @@ const ProgressBar = ({
 
     // Animate progress bar
     if (indeterminate) {
-      if (!indeterminateAnimation.current) {
-        indeterminateAnimation.current = Animated.timing(timer, {
+      if (!this.indeterminateAnimation) {
+        this.indeterminateAnimation = Animated.timing(timer, {
           duration: INDETERMINATE_DURATION,
           toValue: 1,
           // Animated.loop does not work if useNativeDriver is true on web
@@ -105,7 +137,7 @@ const ProgressBar = ({
       // Reset timer to the beginning
       timer.setValue(0);
 
-      Animated.loop(indeterminateAnimation.current).start();
+      Animated.loop(this.indeterminateAnimation).start();
     } else {
       Animated.timing(timer, {
         duration: 200 * scale,
@@ -114,12 +146,15 @@ const ProgressBar = ({
         isInteraction: false,
       }).start();
     }
-  }, [scale, timer, progress, indeterminate, fade]);
+  };
 
-  const stopAnimation = React.useCallback(() => {
+  private stopAnimation = () => {
+    const { fade } = this.state;
+    const { scale } = this.props.theme.animation;
+
     // Stop indeterminate animation
-    if (indeterminateAnimation.current) {
-      indeterminateAnimation.current.stop();
+    if (this.indeterminateAnimation) {
+      this.indeterminateAnimation.stop();
     }
 
     Animated.timing(fade, {
@@ -128,95 +163,90 @@ const ProgressBar = ({
       useNativeDriver: true,
       isInteraction: false,
     }).start();
-  }, [fade, scale]);
-
-  React.useEffect(() => {
-    if (visible) startAnimation();
-    else stopAnimation();
-  }, [visible, startAnimation, stopAnimation]);
-
-  React.useEffect(() => {
-    // Start animation the very first time when previously the width was unclear
-    if (visible && prevWidth === 0) {
-      startAnimation();
-    }
-  }, [prevWidth, startAnimation, visible]);
-
-  const onLayout = (event: LayoutChangeEvent) => {
-    setPrevWidth(width);
-    setWidth(event.nativeEvent.layout.width);
   };
 
-  const tintColor = color || theme.colors.primary;
-  const trackTintColor = setColor(tintColor).alpha(0.38).rgb().string();
+  render() {
+    const {
+      color,
+      indeterminate,
+      style,
+      theme,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      progress,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      visible,
+      ...rest
+    } = this.props;
+    const { fade, timer, width } = this.state;
+    const tintColor = color || theme.colors.primary;
+    const trackTintColor = setColor(tintColor)
+      .alpha(0.38)
+      .rgb()
+      .string();
 
-  return (
-    <View
-      onLayout={onLayout}
-      {...rest}
-      accessible
-      accessibilityRole="progressbar"
-    >
-      <Animated.View
-        style={[
-          styles.container,
-          { backgroundColor: trackTintColor, opacity: fade },
-          style,
-        ]}
-      >
+    return (
+      <View onLayout={this.onLayout} {...rest}>
         <Animated.View
           style={[
-            styles.progressBar,
-            {
-              backgroundColor: tintColor,
-              width,
-              transform: [
-                {
-                  translateX: timer.interpolate(
-                    indeterminate
-                      ? {
-                          inputRange: [0, 0.5, 1],
-                          outputRange: [
-                            (isRTL ? 1 : -1) * 0.5 * width,
-                            (isRTL ? 1 : -1) *
-                              0.5 *
-                              INDETERMINATE_MAX_WIDTH *
-                              width,
-                            (isRTL ? -1 : 1) * 0.7 * width,
-                          ],
-                        }
-                      : {
-                          inputRange: [0, 1],
-                          outputRange: [(isRTL ? 1 : -1) * 0.5 * width, 0],
-                        }
-                  ),
-                },
-                {
-                  // Workaround for workaround for https://github.com/facebook/react-native/issues/6278
-                  scaleX: timer.interpolate(
-                    indeterminate
-                      ? {
-                          inputRange: [0, 0.5, 1],
-                          outputRange: [
-                            0.0001,
-                            INDETERMINATE_MAX_WIDTH,
-                            0.0001,
-                          ],
-                        }
-                      : {
-                          inputRange: [0, 1],
-                          outputRange: [0.0001, 1],
-                        }
-                  ),
-                },
-              ],
-            },
+            styles.container,
+            { backgroundColor: trackTintColor, opacity: fade },
+            style,
           ]}
-        />
-      </Animated.View>
-    </View>
-  );
-};
+        >
+          <Animated.View
+            style={[
+              styles.progressBar,
+              {
+                backgroundColor: tintColor,
+                width,
+                transform: [
+                  {
+                    translateX: timer.interpolate(
+                      indeterminate
+                        ? {
+                            inputRange: [0, 0.5, 1],
+                            outputRange: [
+                              (isRTL ? 1 : -1) * 0.5 * width,
+                              (isRTL ? 1 : -1) *
+                                0.5 *
+                                INDETERMINATE_MAX_WIDTH *
+                                width,
+                              (isRTL ? -1 : 1) * 0.7 * width,
+                            ],
+                          }
+                        : {
+                            inputRange: [0, 1],
+                            outputRange: [(isRTL ? 1 : -1) * 0.5 * width, 0],
+                          }
+                    ),
+                  },
+                  {
+                    // Workaround for workaround for https://github.com/facebook/react-native/issues/6278
+                    scaleX: timer.interpolate(
+                      indeterminate
+                        ? {
+                            inputRange: [0, 0.5, 1],
+                            outputRange: [
+                              0.0001,
+                              INDETERMINATE_MAX_WIDTH,
+                              0.0001,
+                            ],
+                          }
+                        : {
+                            inputRange: [0, 1],
+                            outputRange: [0.0001, 1],
+                          }
+                    ),
+                  },
+                ],
+              },
+            ]}
+          />
+        </Animated.View>
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {

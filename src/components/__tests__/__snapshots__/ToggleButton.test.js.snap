@@ -3,11 +3,10 @@
 exports[`renders disabled toggle button 1`] = `
 <View
   accessibilityRole="button"
-  accessibilityState={
-    Object {
-      "disabled": true,
-      "selected": true,
-    }
+  accessibilityStates={
+    Array [
+      "disabled",
+    ]
   }
   accessible={true}
   focusable={true}
@@ -19,6 +18,7 @@ exports[`renders disabled toggle button 1`] = `
       "top": 6,
     }
   }
+  isTVSelectable={true}
   onClick={[Function]}
   onResponderGrant={[Function]}
   onResponderMove={[Function]}
@@ -61,7 +61,9 @@ exports[`renders disabled toggle button 1`] = `
     ]
   }
 >
-  <View>
+  <View
+    style={null}
+  >
     <Text
       accessibilityElementsHidden={true}
       allowFontScaling={false}
@@ -75,7 +77,6 @@ exports[`renders disabled toggle button 1`] = `
           },
           Array [
             Object {
-              "lineHeight": 24,
               "transform": Array [
                 Object {
                   "scaleX": 1,
@@ -104,12 +105,7 @@ exports[`renders disabled toggle button 1`] = `
 exports[`renders toggle button 1`] = `
 <View
   accessibilityRole="button"
-  accessibilityState={
-    Object {
-      "disabled": undefined,
-      "selected": true,
-    }
-  }
+  accessibilityStates={Array []}
   accessible={true}
   focusable={true}
   hitSlop={
@@ -120,6 +116,7 @@ exports[`renders toggle button 1`] = `
       "top": 6,
     }
   }
+  isTVSelectable={true}
   onClick={[Function]}
   onResponderGrant={[Function]}
   onResponderMove={[Function]}
@@ -160,7 +157,9 @@ exports[`renders toggle button 1`] = `
     ]
   }
 >
-  <View>
+  <View
+    style={null}
+  >
     <Text
       accessibilityElementsHidden={true}
       allowFontScaling={false}
@@ -174,7 +173,6 @@ exports[`renders toggle button 1`] = `
           },
           Array [
             Object {
-              "lineHeight": 24,
               "transform": Array [
                 Object {
                   "scaleX": 1,
@@ -203,11 +201,10 @@ exports[`renders toggle button 1`] = `
 exports[`renders unchecked toggle button 1`] = `
 <View
   accessibilityRole="button"
-  accessibilityState={
-    Object {
-      "disabled": true,
-      "selected": false,
-    }
+  accessibilityStates={
+    Array [
+      "disabled",
+    ]
   }
   accessible={true}
   focusable={true}
@@ -219,6 +216,7 @@ exports[`renders unchecked toggle button 1`] = `
       "top": 6,
     }
   }
+  isTVSelectable={true}
   onClick={[Function]}
   onResponderGrant={[Function]}
   onResponderMove={[Function]}
@@ -261,7 +259,9 @@ exports[`renders unchecked toggle button 1`] = `
     ]
   }
 >
-  <View>
+  <View
+    style={null}
+  >
     <Text
       accessibilityElementsHidden={true}
       allowFontScaling={false}
@@ -275,7 +275,6 @@ exports[`renders unchecked toggle button 1`] = `
           },
           Array [
             Object {
-              "lineHeight": 24,
               "transform": Array [
                 Object {
                   "scaleX": 1,

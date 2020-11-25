@@ -6,14 +6,13 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
+import { Theme } from '../../types';
 import { withTheme } from '../../core/theming';
 import { RadioButtonContext, RadioButtonContextType } from './RadioButtonGroup';
 import { handlePress } from './utils';
-import TouchableRipple from '../TouchableRipple/TouchableRipple';
+import TouchableRipple from '../TouchableRipple';
 import RadioButton from './RadioButton';
 import Text from '../Typography/Text';
-import RadioButtonAndroid from './RadioButtonAndroid';
-import RadioButtonIOS from './RadioButtonIOS';
 
 export type Props = {
   /**
@@ -32,10 +31,6 @@ export type Props = {
    * Function to execute on press.
    */
   onPress?: () => void;
-  /**
-   * Accessibility label for the touchable. This is read by the screen reader when the user taps the touchable.
-   */
-  accessibilityLabel?: string;
   /**
    * Custom color for unchecked radio.
    */
@@ -59,16 +54,7 @@ export type Props = {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
-  /**
-   * testID to be used on tests.
-   */
-  testID?: string;
-  /**
-   * Whether `<RadioButton.Android />` or `<RadioButton.IOS />` should be used.
-   * Left undefined `<RadioButton />` will be used.
-   */
-  mode?: 'android' | 'ios';
+  theme: Theme;
 };
 
 /**
@@ -84,80 +70,82 @@ export type Props = {
  * ## Usage
  * ```js
  * import * as React from 'react';
- * import { RadioButton } from 'react-native-paper';
+ * import { View } from 'react-native';
+ * import { RadioButton, Text } from 'react-native-paper';
  *
- * const MyComponent = () => {
- *   const [value, setValue] = React.useState('first');
+ * export default class MyComponent extends React.Component {
+ *   state = {
+ *     value: 'first',
+ *   };
  *
- *   return (
- *     <RadioButton.Group onValueChange={value => setValue(value)} value={value}>
- *       <RadioButton.Item label="First item" value="first" />
- *       <RadioButton.Item label="Second item" value="second" />
- *     </RadioButton.Group>
- *   );
- * };
- *
- * export default MyComponent;
+ *   render() {
+ *     return(
+ *       <RadioButton.Group
+ *         onValueChange={value => this.setState({ value })}
+ *         value={this.state.value}
+ *       >
+ *           <RadioButton.Item label="First item" value="first" />
+ *           <RadioButton.Item label="Second item" value="second" />
+ *       </RadioButton.Group>
+ *     )
+ *   }
+ * }
  *```
  */
-const RadioButtonItem = ({
-  value,
-  label,
-  style,
-  labelStyle,
-  onPress,
-  disabled,
-  color,
-  uncheckedColor,
-  status,
-  theme: { colors },
-  accessibilityLabel,
-  testID,
-  mode,
-}: Props) => {
-  const radioButtonProps = { value, disabled, status, color, uncheckedColor };
-  let radioButton: any;
+class RadioButtonItem extends React.Component<Props> {
+  static displayName = 'RadioButton.Item';
 
-  if (mode === 'android') {
-    radioButton = <RadioButtonAndroid {...radioButtonProps} />;
-  } else if (mode === 'ios') {
-    radioButton = <RadioButtonIOS {...radioButtonProps} />;
-  } else {
-    radioButton = <RadioButton {...radioButtonProps} />;
+  render() {
+    const {
+      value,
+      label,
+      style,
+      labelStyle,
+      onPress,
+      disabled,
+      color,
+      uncheckedColor,
+      status,
+      theme: { colors },
+    } = this.props;
+
+    return (
+      <RadioButtonContext.Consumer>
+        {(context?: RadioButtonContextType) => {
+          return (
+            <TouchableRipple
+              onPress={
+                disabled
+                  ? undefined
+                  : () =>
+                      handlePress({
+                        onPress: onPress,
+                        onValueChange: context?.onValueChange,
+                        value,
+                      })
+              }
+            >
+              <View style={[styles.container, style]} pointerEvents="none">
+                <Text
+                  style={[styles.label, { color: colors.text }, labelStyle]}
+                >
+                  {label}
+                </Text>
+                <RadioButton
+                  value={value}
+                  disabled={disabled}
+                  status={status}
+                  color={color}
+                  uncheckedColor={uncheckedColor}
+                />
+              </View>
+            </TouchableRipple>
+          );
+        }}
+      </RadioButtonContext.Consumer>
+    );
   }
-
-  return (
-    <RadioButtonContext.Consumer>
-      {(context?: RadioButtonContextType) => {
-        return (
-          <TouchableRipple
-            onPress={
-              disabled
-                ? undefined
-                : () =>
-                    handlePress({
-                      onPress: onPress,
-                      onValueChange: context?.onValueChange,
-                      value,
-                    })
-            }
-            accessibilityLabel={accessibilityLabel}
-            testID={testID}
-          >
-            <View style={[styles.container, style]} pointerEvents="none">
-              <Text style={[styles.label, { color: colors.text }, labelStyle]}>
-                {label}
-              </Text>
-              {radioButton}
-            </View>
-          </TouchableRipple>
-        );
-      }}
-    </RadioButtonContext.Consumer>
-  );
-};
-
-RadioButtonItem.displayName = 'RadioButton.Item';
+}
 
 export default withTheme(RadioButtonItem);
 

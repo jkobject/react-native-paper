@@ -4,6 +4,7 @@ exports[`renders data table cell 1`] = `
 <View
   accessible={true}
   focusable={false}
+  isTVSelectable={true}
   onClick={[Function]}
   onResponderGrant={[Function]}
   onResponderMove={[Function]}
@@ -36,7 +37,7 @@ exports[`renders data table cell 1`] = `
           "fontWeight": "400",
           "textAlign": "left",
         },
-        undefined,
+        null,
       ]
     }
   >
@@ -205,11 +206,7 @@ exports[`renders data table pagination 1`] = `
   />
   <View
     accessibilityRole="button"
-    accessibilityState={
-      Object {
-        "disabled": false,
-      }
-    }
+    accessibilityStates={Array []}
     accessible={true}
     focusable={true}
     hitSlop={
@@ -220,6 +217,7 @@ exports[`renders data table pagination 1`] = `
         "top": 6,
       }
     }
+    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -250,7 +248,9 @@ exports[`renders data table pagination 1`] = `
       ]
     }
   >
-    <View>
+    <View
+      style={null}
+    >
       <Text
         accessibilityElementsHidden={true}
         allowFontScaling={false}
@@ -264,7 +264,6 @@ exports[`renders data table pagination 1`] = `
             },
             Array [
               Object {
-                "lineHeight": 24,
                 "transform": Array [
                   Object {
                     "scaleX": 1,
@@ -290,11 +289,7 @@ exports[`renders data table pagination 1`] = `
   </View>
   <View
     accessibilityRole="button"
-    accessibilityState={
-      Object {
-        "disabled": false,
-      }
-    }
+    accessibilityStates={Array []}
     accessible={true}
     focusable={true}
     hitSlop={
@@ -305,6 +300,7 @@ exports[`renders data table pagination 1`] = `
         "top": 6,
       }
     }
+    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -335,7 +331,9 @@ exports[`renders data table pagination 1`] = `
       ]
     }
   >
-    <View>
+    <View
+      style={null}
+    >
       <Text
         accessibilityElementsHidden={true}
         allowFontScaling={false}
@@ -349,7 +347,6 @@ exports[`renders data table pagination 1`] = `
             },
             Array [
               Object {
-                "lineHeight": 24,
                 "transform": Array [
                   Object {
                     "scaleX": 1,
@@ -416,11 +413,7 @@ exports[`renders data table pagination with label 1`] = `
   </Text>
   <View
     accessibilityRole="button"
-    accessibilityState={
-      Object {
-        "disabled": false,
-      }
-    }
+    accessibilityStates={Array []}
     accessible={true}
     focusable={true}
     hitSlop={
@@ -431,6 +424,7 @@ exports[`renders data table pagination with label 1`] = `
         "top": 6,
       }
     }
+    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -461,7 +455,9 @@ exports[`renders data table pagination with label 1`] = `
       ]
     }
   >
-    <View>
+    <View
+      style={null}
+    >
       <Text
         accessibilityElementsHidden={true}
         allowFontScaling={false}
@@ -475,7 +471,6 @@ exports[`renders data table pagination with label 1`] = `
             },
             Array [
               Object {
-                "lineHeight": 24,
                 "transform": Array [
                   Object {
                     "scaleX": 1,
@@ -501,11 +496,7 @@ exports[`renders data table pagination with label 1`] = `
   </View>
   <View
     accessibilityRole="button"
-    accessibilityState={
-      Object {
-        "disabled": false,
-      }
-    }
+    accessibilityStates={Array []}
     accessible={true}
     focusable={true}
     hitSlop={
@@ -516,6 +507,7 @@ exports[`renders data table pagination with label 1`] = `
         "top": 6,
       }
     }
+    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -546,7 +538,9 @@ exports[`renders data table pagination with label 1`] = `
       ]
     }
   >
-    <View>
+    <View
+      style={null}
+    >
       <Text
         accessibilityElementsHidden={true}
         allowFontScaling={false}
@@ -560,7 +554,6 @@ exports[`renders data table pagination with label 1`] = `
             },
             Array [
               Object {
-                "lineHeight": 24,
                 "transform": Array [
                   Object {
                     "scaleX": 1,
@@ -637,7 +630,6 @@ exports[`renders data table title with press handler 1`] = `
           },
           Array [
             Object {
-              "lineHeight": 16,
               "transform": Array [
                 Object {
                   "scaleX": 1,
@@ -740,7 +732,6 @@ exports[`renders data table title with sort icon 1`] = `
           },
           Array [
             Object {
-              "lineHeight": 16,
               "transform": Array [
                 Object {
                   "scaleX": 1,
@@ -797,6 +788,7 @@ exports[`renders right aligned data table cell 1`] = `
 <View
   accessible={true}
   focusable={false}
+  isTVSelectable={true}
   onClick={[Function]}
   onResponderGrant={[Function]}
   onResponderMove={[Function]}
@@ -831,7 +823,7 @@ exports[`renders right aligned data table cell 1`] = `
           "fontWeight": "400",
           "textAlign": "left",
         },
-        undefined,
+        null,
       ]
     }
   >

@@ -4,6 +4,7 @@ import { View, ViewStyle, StyleSheet, StyleProp } from 'react-native';
 import Text from '../Typography/Text';
 import Divider from '../Divider';
 import { withTheme } from '../../core/theming';
+import { Theme } from '../../types';
 
 type Props = React.ComponentPropsWithRef<typeof View> & {
   /**
@@ -18,7 +19,7 @@ type Props = React.ComponentPropsWithRef<typeof View> & {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
 };
 
 /**
@@ -35,53 +36,57 @@ type Props = React.ComponentPropsWithRef<typeof View> & {
  * import * as React from 'react';
  * import { Drawer } from 'react-native-paper';
  *
- * const MyComponent = () => {
- *   const [active, setActive] = React.useState('');
+ * export default function MyComponent = () => {
  *
+ *     const [active, setActive] = React.useState(false);
  *
- *   return (
- *     <Drawer.Section title="Some title">
- *       <Drawer.Item
- *         label="First Item"
- *         active={active === 'first'}
- *         onPress={() => setActive('first')}
- *       />
- *       <Drawer.Item
- *         label="Second Item"
- *         active={active === 'second'}
- *         onPress={() => setActive('second')}
- *       />
- *     </Drawer.Section>
- *   );
- * };
- *
- * export default MyComponent;
+ *     return (
+ *       <Drawer.Section title="Some title">
+ *         <Drawer.Item
+ *           label="First Item"
+ *           active={active === 'first'}
+ *           onPress={() =>  setActive('first')}
+ *         />
+ *         <Drawer.Item
+ *           label="Second Item"
+ *           active={active === 'second'}
+ *           onPress={() =>  setActive('second')}
+ *         />
+ *      </Drawer.Section>
+ *     );
+ * }
  * ```
  */
-const DrawerSection = ({ children, title, theme, style, ...rest }: Props) => {
-  const { colors, fonts } = theme;
-  const titleColor = color(colors.text).alpha(0.54).rgb().string();
-  const font = fonts.medium;
+class DrawerSection extends React.Component<Props> {
+  static displayName = 'Drawer.Section';
 
-  return (
-    <View style={[styles.container, style]} {...rest}>
-      {title && (
-        <View style={styles.titleContainer}>
-          <Text
-            numberOfLines={1}
-            style={{ color: titleColor, ...font, marginLeft: 16 }}
-          >
-            {title}
-          </Text>
-        </View>
-      )}
-      {children}
-      <Divider style={styles.divider} />
-    </View>
-  );
-};
+  render() {
+    const { children, title, theme, style, ...rest } = this.props;
+    const { colors, fonts } = theme;
+    const titleColor = color(colors.text)
+      .alpha(0.54)
+      .rgb()
+      .string();
+    const font = fonts.medium;
 
-DrawerSection.displayName = 'Drawer.Section';
+    return (
+      <View style={[styles.container, style]} {...rest}>
+        {title && (
+          <View style={styles.titleContainer}>
+            <Text
+              numberOfLines={1}
+              style={{ color: titleColor, ...font, marginLeft: 16 }}
+            >
+              {title}
+            </Text>
+          </View>
+        )}
+        {children}
+        <Divider style={styles.divider} />
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {

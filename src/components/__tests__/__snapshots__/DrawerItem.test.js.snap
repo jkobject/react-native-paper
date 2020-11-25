@@ -18,13 +18,10 @@ exports[`renders DrawerItem with icon 1`] = `
 >
   <View
     accessibilityRole="button"
-    accessibilityState={
-      Object {
-        "selected": undefined,
-      }
-    }
+    accessibilityStates={Array []}
     accessible={true}
     focusable={false}
+    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -65,7 +62,6 @@ exports[`renders DrawerItem with icon 1`] = `
             },
             Array [
               Object {
-                "lineHeight": 24,
                 "transform": Array [
                   Object {
                     "scaleX": 1,
@@ -136,13 +132,14 @@ exports[`renders active DrawerItem 1`] = `
 >
   <View
     accessibilityRole="button"
-    accessibilityState={
-      Object {
-        "selected": true,
-      }
+    accessibilityStates={
+      Array [
+        "selected",
+      ]
     }
     accessible={true}
     focusable={false}
+    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -183,7 +180,6 @@ exports[`renders active DrawerItem 1`] = `
             },
             Array [
               Object {
-                "lineHeight": 24,
                 "transform": Array [
                   Object {
                     "scaleX": 1,
@@ -254,13 +250,10 @@ exports[`renders basic DrawerItem 1`] = `
 >
   <View
     accessibilityRole="button"
-    accessibilityState={
-      Object {
-        "selected": undefined,
-      }
-    }
+    accessibilityStates={Array []}
     accessible={true}
     focusable={true}
+    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}

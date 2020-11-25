@@ -12,7 +12,8 @@ import color from 'color';
 import IconButton from './IconButton';
 import Surface from './Surface';
 import { withTheme } from '../core/theming';
-import type { IconSource } from './Icon';
+import { Theme } from '../types';
+import { IconSource } from './Icon';
 import MaterialCommunityIcon from './MaterialCommunityIcon';
 
 type Props = React.ComponentPropsWithRef<typeof TextInput> & {
@@ -53,7 +54,7 @@ type Props = React.ComponentPropsWithRef<typeof TextInput> & {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
   /**
    * Custom color for icon, default will be derived from theme
    */
@@ -63,11 +64,6 @@ type Props = React.ComponentPropsWithRef<typeof TextInput> & {
    */
   clearIcon?: IconSource;
 };
-
-type TextInputHandles = Pick<
-  TextInput,
-  'setNativeProps' | 'isFocused' | 'clear' | 'blur' | 'focus'
->;
 
 /**
  * Searchbar is a simple input box where users can type search queries.
@@ -81,68 +77,102 @@ type TextInputHandles = Pick<
  * import * as React from 'react';
  * import { Searchbar } from 'react-native-paper';
  *
- * const MyComponent = () => {
- *   const [searchQuery, setSearchQuery] = React.useState('');
+ * export default class MyComponent extends React.Component {
+ *   state = {
+ *     searchQuery: '',
+ *   };
  *
- *   const onChangeSearch = query => setSearchQuery(query);
+ *   _onChangeSearch = query => this.setState({ searchQuery: query });
  *
- *   return (
- *     <Searchbar
- *       placeholder="Search"
- *       onChangeText={onChangeSearch}
- *       value={searchQuery}
- *     />
- *   );
- * };
- *
- * export default MyComponent;
-
+ *   render() {
+ *     const { searchQuery } = this.state;
+ *     return (
+ *       <Searchbar
+ *         placeholder="Search"
+ *         onChangeText={this._onChangeSearch}
+ *         value={searchQuery}
+ *       />
+ *     );
+ *   }
+ * }
  * ```
  */
-const Searchbar = React.forwardRef<TextInputHandles, Props>(
-  (
-    {
-      clearAccessibilityLabel = 'clear',
+class Searchbar extends React.Component<Props> {
+  static defaultProps = {
+    searchAccessibilityLabel: 'search',
+    clearAccessibilityLabel: 'clear',
+  };
+  private handleClearPress = () => {
+    this.clear();
+    this.props.onChangeText && this.props.onChangeText('');
+  };
+
+  private root: TextInput | undefined | null;
+
+  /**
+   * @internal
+   */ setNativeProps(args: Object) {
+    return this.root && this.root.setNativeProps(args);
+  }
+
+  /**
+   * Returns `true` if the input is currently focused, `false` otherwise.
+   */
+  isFocused() {
+    return this.root && this.root.isFocused();
+  }
+
+  /**
+   * Removes all text from the TextInput.
+   */
+  clear() {
+    return this.root && this.root.clear();
+  }
+
+  /**
+   * Focuses the input.
+   */
+  focus() {
+    return this.root && this.root.focus();
+  }
+
+  /**
+   * Removes focus from the input.
+   */
+  blur() {
+    return this.root && this.root.blur();
+  }
+
+  render() {
+    const {
+      clearAccessibilityLabel,
       clearIcon,
       icon,
       iconColor: customIconColor,
       inputStyle,
       onIconPress,
       placeholder,
-      searchAccessibilityLabel = 'search',
+      searchAccessibilityLabel,
       style,
       theme,
       value,
       ...rest
-    }: Props,
-    ref
-  ) => {
-    const root = React.useRef<TextInput>(null);
-
-    React.useImperativeHandle(ref, () => ({
-      // @ts-ignore
-      focus: root.current?.focus,
-      // @ts-ignore
-      clear: root.current?.clear,
-      setNativeProps: (args: Object) => root.current?.setNativeProps(args),
-      // @ts-ignore
-      isFocused: root.current?.isFocused,
-      // @ts-ignore
-      blur: root.current?.blur,
-    }));
-
-    const handleClearPress = () => {
-      root.current?.clear();
-      rest.onChangeText?.('');
-    };
-
+    } = this.props;
     const { colors, roundness, dark, fonts } = theme;
     const textColor = colors.text;
     const font = fonts.regular;
     const iconColor =
       customIconColor ||
-      (dark ? textColor : color(textColor).alpha(0.54).rgb().string());
-    const rippleColor = color(textColor).alpha(0.32).rgb().string();
+      (dark
+        ? textColor
+        : color(textColor)
+            .alpha(0.54)
+            .rgb()
+            .string());
+    const rippleColor = color(textColor)
+      .alpha(0.32)
+      .rgb()
+      .string();
 
     return (
       <Surface
@@ -183,7 +213,9 @@ const Searchbar = React.forwardRef<TextInputHandles, Props>(
           keyboardAppearance={dark ? 'dark' : 'light'}
           accessibilityTraits="search"
           accessibilityRole="search"
-          ref={root}
+          ref={c => {
+            this.root = c;
+          }}
           value={value}
           {...rest}
         />
@@ -193,7 +225,7 @@ const Searchbar = React.forwardRef<TextInputHandles, Props>(
           accessibilityLabel={clearAccessibilityLabel}
           color={value ? iconColor : 'rgba(255, 255, 255, 0)'}
           rippleColor={rippleColor}
-          onPress={handleClearPress}
+          onPress={this.handleClearPress}
           icon={
             clearIcon ||
             (({ size, color }) => (
@@ -212,7 +244,7 @@ const Searchbar = React.forwardRef<TextInputHandles, Props>(
       </Surface>
     );
   }
-);
+}
 
 const styles = StyleSheet.create({
   container: {

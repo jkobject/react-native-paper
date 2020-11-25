@@ -23,39 +23,47 @@ type Props = React.ComponentPropsWithRef<typeof View> & {
  * import * as React from 'react';
  * import { Button, Dialog, Portal } from 'react-native-paper';
  *
- * const MyComponent = () => {
- *   const [visible, setVisible] = React.useState(false);
+ * export default class MyComponent extends React.Component {
+ *   state = {
+ *     visible: false,
+ *   };
  *
- *   const hideDialog = () => setVisible(false);
+ *   _hideDialog = () => this.setState({ visible: false });
  *
- *   return (
- *     <Portal>
- *       <Dialog visible={visible} onDismiss={hideDialog}>
- *         <Dialog.Actions>
- *           <Button onPress={() => console.log('Cancel')}>Cancel</Button>
- *           <Button onPress={() => console.log('Ok')}>Ok</Button>
- *         </Dialog.Actions>
- *       </Dialog>
- *     </Portal>
- *   );
- * };
- *
- * export default MyComponent;
+ *   render() {
+ *     return (
+ *       <Portal>
+ *         <Dialog
+ *           visible={this.state.visible}
+ *           onDismiss={this._hideDialog}>
+ *           <Dialog.Actions>
+ *             <Button onPress={() => console.log("Cancel")}>Cancel</Button>
+ *             <Button onPress={() => console.log("Ok")}>Ok</Button>
+ *           </Dialog.Actions>
+ *         </Dialog>
+ *       </Portal>
+ *     );
+ *   }
+ * }
  * ```
  */
-const DialogActions = (props: Props) => (
-  <View {...props} style={[styles.container, props.style]}>
-    {React.Children.map(props.children, (child) =>
-      React.isValidElement(child)
-        ? React.cloneElement(child, {
-            compact: true,
-          })
-        : child
-    )}
-  </View>
-);
+class DialogActions extends React.Component<Props> {
+  static displayName = 'Dialog.Actions';
 
-DialogActions.displayName = 'Dialog.Actions';
+  render() {
+    return (
+      <View {...this.props} style={[styles.container, this.props.style]}>
+        {React.Children.map(this.props.children, child =>
+          React.isValidElement(child)
+            ? React.cloneElement(child, {
+                compact: true,
+              })
+            : child
+        )}
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {

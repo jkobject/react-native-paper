@@ -3,6 +3,7 @@ import color from 'color';
 import { StyleSheet, StyleProp, View, ViewStyle } from 'react-native';
 import { black, white } from '../../styles/colors';
 import { withTheme } from '../../core/theming';
+import { Theme } from '../../types';
 
 type Props = React.ComponentPropsWithRef<typeof View> & {
   /**
@@ -13,7 +14,7 @@ type Props = React.ComponentPropsWithRef<typeof View> & {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
 };
 
 /**
@@ -49,20 +50,23 @@ type Props = React.ComponentPropsWithRef<typeof View> & {
  * ```
  */
 
-const DataTableHeader = ({ children, style, theme, ...rest }: Props) => {
-  const borderBottomColor = color(theme.dark ? white : black)
-    .alpha(0.12)
-    .rgb()
-    .string();
+class DataTableHeader extends React.Component<Props> {
+  static displayName = 'DataTable.Header';
 
-  return (
-    <View {...rest} style={[styles.header, { borderBottomColor }, style]}>
-      {children}
-    </View>
-  );
-};
+  render() {
+    const { children, style, theme, ...rest } = this.props;
+    const borderBottomColor = color(theme.dark ? white : black)
+      .alpha(0.12)
+      .rgb()
+      .string();
 
-DataTableHeader.displayName = 'DataTable.Header';
+    return (
+      <View {...rest} style={[styles.header, { borderBottomColor }, style]}>
+        {children}
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   header: {

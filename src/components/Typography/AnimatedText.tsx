@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { Animated, TextStyle, I18nManager, StyleProp } from 'react-native';
 import { withTheme } from '../../core/theming';
+import { Theme } from '../../types';
 
 type Props = React.ComponentPropsWithRef<typeof Animated.Text> & {
   style?: StyleProp<TextStyle>;
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
 };
 
 /**
@@ -19,7 +20,6 @@ function AnimatedText({ style, theme, ...rest }: Props) {
   const writingDirection = I18nManager.isRTL ? 'rtl' : 'ltr';
 
   return (
-    //@ts-ignore
     <Animated.Text
       {...rest}
       style={[

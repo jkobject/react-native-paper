@@ -8,10 +8,11 @@ import {
   StyleProp,
 } from 'react-native';
 import Icon, { IconSource } from '../Icon';
-import TouchableRipple from '../TouchableRipple/TouchableRipple';
+import TouchableRipple from '../TouchableRipple';
 import Text from '../Typography/Text';
 import { withTheme } from '../../core/theming';
 import { black, white } from '../../styles/colors';
+import { Theme } from '../../types';
 
 type Props = {
   /**
@@ -33,9 +34,8 @@ type Props = {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
   style?: StyleProp<ViewStyle>;
-  contentStyle?: StyleProp<ViewStyle>;
   titleStyle?: StyleProp<TextStyle>;
   /**
    * TestID used for testing purposes
@@ -83,7 +83,6 @@ class MenuItem extends React.Component<Props> {
       onPress,
       theme,
       style,
-      contentStyle,
       testID,
       titleStyle,
     } = this.props;
@@ -95,11 +94,17 @@ class MenuItem extends React.Component<Props> {
 
     const titleColor = disabled
       ? disabledColor
-      : color(theme.colors.text).alpha(0.87).rgb().string();
+      : color(theme.colors.text)
+          .alpha(0.87)
+          .rgb()
+          .string();
 
     const iconColor = disabled
       ? disabledColor
-      : color(theme.colors.text).alpha(0.54).rgb().string();
+      : color(theme.colors.text)
+          .alpha(0.54)
+          .rgb()
+          .string();
 
     return (
       <TouchableRipple
@@ -107,8 +112,6 @@ class MenuItem extends React.Component<Props> {
         onPress={onPress}
         disabled={disabled}
         testID={testID}
-        accessibilityRole="menuitem"
-        accessibilityState={{ disabled }}
       >
         <View style={styles.row}>
           {icon ? (
@@ -121,7 +124,6 @@ class MenuItem extends React.Component<Props> {
               styles.item,
               styles.content,
               icon ? styles.widthWithIcon : null,
-              contentStyle,
             ]}
             pointerEvents="none"
           >

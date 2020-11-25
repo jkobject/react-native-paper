@@ -10,10 +10,10 @@ import {
 } from 'react-native';
 import color from 'color';
 import FAB from './FAB';
-import Text from '../Typography/Text';
-import Card from '../Card/Card';
 import { withTheme } from '../../core/theming';
-import type { IconSource } from '../Icon';
+import { Theme } from '../../types';
+import { IconSource } from '../Icon';
+import Button from '../../../../../components/Button/GenericButton.js'
 
 type Props = {
   /**
@@ -27,13 +27,21 @@ type Props = {
    * - `onPress`: callback that is called when `FAB` is pressed (required)
    */
   actions: Array<{
-    icon: IconSource;
-    label?: string;
-    color?: string;
-    accessibilityLabel?: string;
-    style?: StyleProp<ViewStyle>;
+    // icon: IconSource;
+    // label?: string;
+    // color?: string;
+    // accessibilityLabel?: string;
+    // style?: StyleProp<ViewStyle>;
+    // onPress: () => void;
+    // testID?: string;
+    svg?: Node;
+    text?: string;
     onPress: () => void;
-    testID?: string;
+    isPrimary?: false;
+    isLoading?: false;
+    size?: "medium";
+    textColor?: null;
+    disabled?: false;
   }>;
   /**
    * Icon to display for the `FAB`.
@@ -77,11 +85,24 @@ type Props = {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
   /**
    * Pass down testID from Group props to FAB.
    */
   testID?: string;
+  /**
+   * Pointer mouse event in
+   */
+  onMouseEnter?: Function;
+  /**
+   * Pointer mouse event leave
+   */
+  onMouseLeave?: Function;
+};
+
+type State = {
+  backdrop: Animated.Value;
+  animations: Animated.Value[];
 };
 
 /**
@@ -97,100 +118,76 @@ type Props = {
  * import * as React from 'react';
  * import { FAB, Portal, Provider } from 'react-native-paper';
  *
- * const MyComponent = () => {
- *   const [state, setState] = React.useState({ open: false });
+ * export default class MyComponent extends React.Component {
+ *   state = {
+ *     open: false,
+ *   };
  *
- *   const onStateChange = ({ open }) => setState({ open });
+ *   _onStateChange = ({ open }) => this.setState({ open });
  *
- *   const { open } = state;
+ *   render() {
+ *     const { open } = this.state;
  *
- *   return (
- *     <Provider>
- *       <Portal>
- *         <FAB.Group
- *           open={open}
- *           icon={open ? 'calendar-today' : 'plus'}
- *           actions={[
- *             { icon: 'plus', onPress: () => console.log('Pressed add') },
- *             {
- *               icon: 'star',
- *               label: 'Star',
- *               onPress: () => console.log('Pressed star'),
- *             },
- *             {
- *               icon: 'email',
- *               label: 'Email',
- *               onPress: () => console.log('Pressed email'),
- *             },
- *             {
- *               icon: 'bell',
- *               label: 'Remind',
- *               onPress: () => console.log('Pressed notifications'),
- *             },
- *           ]}
- *           onStateChange={onStateChange}
- *           onPress={() => {
- *             if (open) {
- *               // do something if the speed dial is open
- *             }
- *           }}
- *         />
- *       </Portal>
- *     </Provider>
- *   );
- * };
- *
- * export default MyComponent;
+ *     return (
+ *       <Provider>
+ *          <Portal>
+ *            <FAB.Group
+ *              open={open}
+ *              icon={open ? 'calendar-today' : 'plus'}
+ *              actions={[
+ *                { icon: 'plus', onPress: () => console.log('Pressed add') },
+ *                { icon: 'star', label: 'Star', onPress: () => console.log('Pressed star')},
+ *                { icon: 'email', label: 'Email', onPress: () => console.log('Pressed email') },
+ *                { icon: 'bell', label: 'Remind', onPress: () => console.log('Pressed notifications') },
+ *              ]}
+ *              onStateChange={this._onStateChange}
+ *              onPress={() => {
+ *                if (open) {
+ *                  // do something if the speed dial is open
+ *                }
+ *              }}
+ *            />
+ *          </Portal>
+ *       </Provider>
+ *     );
+ *   }
+ * }
  * ```
  */
-const FABGroup = ({
-  actions,
-  icon,
-  open,
-  onPress,
-  accessibilityLabel,
-  theme,
-  style,
-  fabStyle,
-  visible,
-  testID,
-  onStateChange,
-  color: colorProp,
-}: Props) => {
-  const { current: backdrop } = React.useRef<Animated.Value>(
-    new Animated.Value(0)
-  );
-  const animations = React.useRef<Animated.Value[]>(
-    actions.map(() => new Animated.Value(open ? 1 : 0))
-  );
+class FABGroup extends React.Component<Props, State> {
+  static displayName = 'FAB.Group';
 
-  const [prevActions, setPrevActions] = React.useState<
-    | {
-        icon: IconSource;
-        label?: string;
-        color?: string;
-        accessibilityLabel?: string;
-        style?: StyleProp<ViewStyle>;
-        onPress: () => void;
-        testID?: string;
-      }[]
-    | null
-  >(null);
+  static getDerivedStateFromProps(nextProps: Props, prevState: State) {
+    return {
+      animations: nextProps.actions.map(
+        (_, i) =>
+          prevState.animations[i] || new Animated.Value(nextProps.open ? 1 : 0)
+      ),
+    };
+  }
 
-  const { scale } = theme.animation;
+  state: State = {
+    backdrop: new Animated.Value(0),
+    animations: [],
+  };
 
-  React.useEffect(() => {
-    if (open) {
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.open === prevProps.open) {
+      return;
+    }
+
+    const { scale } = this.props.theme.animation;
+    if (this.props.open) {
       Animated.parallel([
-        Animated.timing(backdrop, {
-          toValue: 1,
+        Animated.timing(this.state.backdrop, {
+          toValue: 0.32,
           duration: 250 * scale,
           useNativeDriver: true,
         }),
         Animated.stagger(
           50 * scale,
-          animations.current
-            .map((animation) =>
+          this.state.animations
+            .map(animation =>
               Animated.timing(animation, {
                 toValue: 1,
                 duration: 150 * scale,
@@ -202,158 +199,136 @@ const FABGroup = ({
       ]).start();
     } else {
       Animated.parallel([
-        Animated.timing(backdrop, {
+        Animated.timing(this.state.backdrop, {
           toValue: 0,
           duration: 200 * scale,
           useNativeDriver: true,
         }),
-        ...animations.current.map((animation) =>
-          Animated.timing(animation, {
-            toValue: 0,
-            duration: 150 * scale,
-            useNativeDriver: true,
-          })
-        ),
+        Animated.stagger(
+          50 * scale,
+          this.state.animations
+            .map(animation =>
+              Animated.timing(animation, {
+                toValue: 0,
+                duration: 150 * scale,
+                useNativeDriver: true,
+              })
+            )
+        )
       ]).start();
     }
-  }, [open, actions, backdrop, scale]);
+  }
 
-  const close = () => onStateChange({ open: false });
+  private close = () => this.props.onStateChange({ open: false });
 
-  const toggle = () => onStateChange({ open: !open });
+  private toggle = () => this.props.onStateChange({ open: !this.props.open });
 
-  const { colors } = theme;
+  render() {
+    const {
+      actions,
+      icon,
+      open,
+      onPress,
+      accessibilityLabel,
+      theme,
+      style,
+      fabStyle,
+      visible,
+      testID,
+      onMouseEnter,
+      onMouseLeave
+    } = this.props;
+    const { colors } = theme;
 
-  const labelColor = theme.dark
-    ? colors.text
-    : color(colors.text).fade(0.54).rgb().string();
-  const backdropOpacity = open
-    ? backdrop.interpolate({
-        inputRange: [0, 0.5, 1],
-        outputRange: [0, 1, 1],
-      })
-    : backdrop;
+    const labelColor = theme.dark
+      ? colors.text
+      : color(colors.text)
+        .fade(0.54)
+        .rgb()
+        .string();
+    const backdropOpacity = this.state.backdrop;
 
-  const opacities = animations.current;
-  const scales = opacities.map((opacity) =>
-    open
-      ? opacity.interpolate({
+    const opacities = this.state.animations;
+    const scales = opacities.map(opacity =>
+      open
+        ? opacity.interpolate({
           inputRange: [0, 1],
           outputRange: [0.8, 1],
         })
-      : 1
-  );
-
-  if (actions.length !== prevActions?.length) {
-    animations.current = actions.map(
-      (_, i) => animations.current[i] || new Animated.Value(open ? 1 : 0)
+        : 1
     );
-    setPrevActions(actions);
-  }
 
-  return (
-    <View pointerEvents="box-none" style={[styles.container, style]}>
-      <TouchableWithoutFeedback onPress={close}>
-        <Animated.View
-          pointerEvents={open ? 'auto' : 'none'}
-          style={[
-            styles.backdrop,
-            {
-              opacity: backdropOpacity,
-              backgroundColor: colors.backdrop,
-            },
-          ]}
-        />
-      </TouchableWithoutFeedback>
-      <SafeAreaView pointerEvents="box-none" style={styles.safeArea}>
-        <View pointerEvents={open ? 'box-none' : 'none'}>
-          {actions.map((it, i) => (
-            <View
-              key={i} // eslint-disable-line react/no-array-index-key
-              style={styles.item}
-              pointerEvents={open ? 'box-none' : 'none'}
-            >
-              {it.label && (
-                <Card
+    return (
+      <View pointerEvents="box-none" style={[styles.container, style]}>
+        <TouchableWithoutFeedback onPress={this.close} style={{ zIndex: -1 }}>
+          <Animated.View
+            pointerEvents={open ? 'auto' : 'none'}
+            style={[
+              styles.backdrop,
+              {
+                opacity: backdropOpacity,
+                backgroundColor: '#555555',
+              },
+            ]}
+          />
+        </TouchableWithoutFeedback>
+        <SafeAreaView pointerEvents="box-none" style={styles.safeArea}>
+          <View pointerEvents={open ? 'box-none' : 'none'} style={{ width: '100%', alignItems: 'center' }}>
+            {actions.map((it, i) => (
+              <View
+                key={i} // eslint-disable-line react/no-array-index-key
+                pointerEvents={open ? 'box-none' : 'none'}
+                style={{ width: '100%', paddingHorizontal: 46 }}
+              >
+                <Animated.View
                   style={
                     [
-                      styles.label,
                       {
                         transform: [{ scale: scales[i] }],
                         opacity: opacities[i],
+                        width: '100%'
                       },
                     ] as StyleProp<ViewStyle>
-                  }
-                  onPress={() => {
-                    it.onPress();
-                    close();
-                  }}
-                  accessibilityLabel={
-                    it.accessibilityLabel !== 'undefined'
-                      ? it.accessibilityLabel
-                      : it.label
-                  }
-                  accessibilityTraits="button"
-                  accessibilityComponentType="button"
-                  accessibilityRole="button"
-                >
-                  <Text style={{ color: labelColor }}>{it.label}</Text>
-                </Card>
-              )}
-              <FAB
-                small
-                icon={it.icon}
-                color={it.color}
-                style={
-                  [
-                    {
-                      transform: [{ scale: scales[i] }],
-                      opacity: opacities[i],
-                      backgroundColor: theme.colors.surface,
-                    },
-                    it.style,
-                  ] as StyleProp<ViewStyle>
-                }
-                onPress={() => {
-                  it.onPress();
-                  close();
-                }}
-                accessibilityLabel={
-                  typeof it.accessibilityLabel !== 'undefined'
-                    ? it.accessibilityLabel
-                    : it.label
-                }
-                accessibilityTraits="button"
-                accessibilityComponentType="button"
-                accessibilityRole="button"
-                testID={it.testID}
-                visible={open}
-              />
-            </View>
-          ))}
-        </View>
-        <FAB
-          onPress={() => {
-            onPress?.();
-            toggle();
-          }}
-          icon={icon}
-          color={colorProp}
-          accessibilityLabel={accessibilityLabel}
-          accessibilityTraits="button"
-          accessibilityComponentType="button"
-          accessibilityRole="button"
-          accessibilityState={{ expanded: open }}
-          style={[styles.fab, fabStyle]}
-          visible={visible}
-          testID={testID}
-        />
-      </SafeAreaView>
-    </View>
-  );
-};
-
-FABGroup.displayName = 'FAB.Group';
+                  }>
+                  <Button
+                    svg={it.svg}
+                    text={it.text}
+                    onPress={() => {
+                      it.onPress()
+                      this.close()
+                    }}
+                    isPrimary={it.isPrimary}
+                    isLoading={it.isLoading}
+                    size={it.size}
+                    textStyle={{ color: it.textColor, fontFamily: 'Nunito-Bold' }}
+                    style={{ marginVertical: 6 }}
+                    disabled={it.disabled} />
+                </Animated.View>
+              </View>
+            ))}
+          </View>
+          <FAB
+            onPress={() => {
+              onPress?.();
+              this.toggle();
+            }}
+            icon={icon}
+            color={color}
+            accessibilityLabel={accessibilityLabel}
+            accessibilityTraits="button"
+            accessibilityComponentType="button"
+            accessibilityRole="button"
+            style={[styles.fab, fabStyle, { backgroundColor: '#fff' }]}
+            visible={visible}
+            testID={testID}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+          />
+        </SafeAreaView>
+      </View>
+    );
+  }
+}
 
 export default withTheme(FABGroup);
 
@@ -362,7 +337,7 @@ export { FABGroup };
 
 const styles = StyleSheet.create({
   safeArea: {
-    alignItems: 'flex-end',
+    alignItems: 'center'
   },
   container: {
     ...StyleSheet.absoluteFillObject,
@@ -370,8 +345,8 @@ const styles = StyleSheet.create({
   },
   fab: {
     marginHorizontal: 16,
-    marginBottom: 16,
-    marginTop: 0,
+    marginTop: 52,
+    marginBottom: 38
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
@@ -381,8 +356,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     marginVertical: 8,
-    marginHorizontal: 16,
-    elevation: 2,
+    marginHorizontal: 16
   },
   item: {
     marginHorizontal: 24,

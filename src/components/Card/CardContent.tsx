@@ -48,45 +48,48 @@ type Props = React.ComponentPropsWithRef<typeof View> & {
  * export default MyComponent;
  * ```
  */
-const CardContent = ({ index, total, siblings, style, ...rest }: Props) => {
-  const cover = 'withTheme(CardCover)';
-  const title = 'withTheme(CardTitle)';
+class CardContent extends React.Component<Props> {
+  static displayName = 'Card.Content';
 
-  let contentStyle, prev, next;
+  render() {
+    const { index, total, siblings, style, ...rest } = this.props;
+    const cover = 'withTheme(CardCover)';
+    const title = 'withTheme(CardTitle)';
 
-  if (typeof index === 'number' && siblings) {
-    prev = siblings[index - 1];
-    next = siblings[index + 1];
-  }
+    let contentStyle, prev, next;
 
-  if (
-    (prev === cover && next === cover) ||
-    (prev === title && next === title) ||
-    total === 1
-  ) {
-    contentStyle = styles.only;
-  } else if (index === 0) {
-    if (next === cover || next === title) {
-      contentStyle = styles.only;
-    } else {
-      contentStyle = styles.first;
+    if (typeof index === 'number' && siblings) {
+      prev = siblings[index - 1];
+      next = siblings[index + 1];
     }
-  } else if (typeof total === 'number' && index === total - 1) {
-    if (prev === cover || prev === title) {
+
+    if (
+      (prev === cover && next === cover) ||
+      (prev === title && next === title) ||
+      total === 1
+    ) {
       contentStyle = styles.only;
-    } else {
+    } else if (index === 0) {
+      if (next === cover || next === title) {
+        contentStyle = styles.only;
+      } else {
+        contentStyle = styles.first;
+      }
+    } else if (typeof total === 'number' && index === total - 1) {
+      if (prev === cover || prev === title) {
+        contentStyle = styles.only;
+      } else {
+        contentStyle = styles.last;
+      }
+    } else if (prev === cover || prev === title) {
+      contentStyle = styles.first;
+    } else if (next === cover || next === title) {
       contentStyle = styles.last;
     }
-  } else if (prev === cover || prev === title) {
-    contentStyle = styles.first;
-  } else if (next === cover || next === title) {
-    contentStyle = styles.last;
+
+    return <View {...rest} style={[styles.container, contentStyle, style]} />;
   }
-
-  return <View {...rest} style={[styles.container, contentStyle, style]} />;
-};
-
-CardContent.displayName = 'Card.Content';
+}
 
 const styles = StyleSheet.create({
   container: {

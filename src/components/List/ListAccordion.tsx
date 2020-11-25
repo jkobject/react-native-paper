@@ -8,12 +8,16 @@ import {
   TextStyle,
   I18nManager,
 } from 'react-native';
-import TouchableRipple from '../TouchableRipple/TouchableRipple';
+import TouchableRipple from '../TouchableRipple';
 import MaterialCommunityIcon from '../MaterialCommunityIcon';
 import Text from '../Typography/Text';
 import { withTheme } from '../../core/theming';
+import { Theme } from '../../types';
 
-import { ListAccordionGroupContext } from './ListAccordionGroup';
+import {
+  ListAccordionGroupContext,
+  ListAccordionGroupContextType,
+} from './ListAccordionGroup';
 
 type Props = {
   /**
@@ -45,7 +49,7 @@ type Props = {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
   /**
    * Style that is passed to the wrapping TouchableRipple element.
    */
@@ -78,6 +82,10 @@ type Props = {
   testID?: string;
 };
 
+type State = {
+  expanded: boolean;
+};
+
 /**
  * A component used to display an expandable list item.
  *
@@ -90,162 +98,198 @@ type Props = {
  * ## Usage
  * ```js
  * import * as React from 'react';
- * import { List } from 'react-native-paper';
+ * import { List, Checkbox } from 'react-native-paper';
  *
- * const MyComponent = () => {
- *   const [expanded, setExpanded] = React.useState(true);
+ * class MyComponent extends React.Component {
+ *   state = {
+ *     expanded: true
+ *   }
  *
- *   const handlePress = () => setExpanded(!expanded);
+ *   _handlePress = () =>
+ *     this.setState({
+ *       expanded: !this.state.expanded
+ *     });
  *
- *   return (
- *     <List.Section title="Accordions">
- *       <List.Accordion
- *         title="Uncontrolled Accordion"
- *         left={props => <List.Icon {...props} icon="folder" />}>
- *         <List.Item title="First item" />
- *         <List.Item title="Second item" />
- *       </List.Accordion>
+ *   render() {
+ *     return (
+ *       <List.Section title="Accordions">
+ *         <List.Accordion
+ *           title="Uncontrolled Accordion"
+ *           left={props => <List.Icon {...props} icon="folder" />}
+ *         >
+ *           <List.Item title="First item" />
+ *           <List.Item title="Second item" />
+ *         </List.Accordion>
  *
- *       <List.Accordion
- *         title="Controlled Accordion"
- *         left={props => <List.Icon {...props} icon="folder" />}
- *         expanded={expanded}
- *         onPress={handlePress}>
- *         <List.Item title="First item" />
- *         <List.Item title="Second item" />
- *       </List.Accordion>
- *     </List.Section>
- *   );
- * };
+ *         <List.Accordion
+ *           title="Controlled Accordion"
+ *           left={props => <List.Icon {...props} icon="folder" />}
+ *           expanded={this.state.expanded}
+ *           onPress={this._handlePress}
+ *         >
+ *           <List.Item title="First item" />
+ *           <List.Item title="Second item" />
+ *         </List.Accordion>
+ *       </List.Section>
+ *     );
+ *   }
+ * }
  *
  * export default MyComponent;
  * ```
  */
-const ListAccordion = ({
-  left,
-  title,
-  description,
-  children,
-  theme,
-  titleStyle,
-  descriptionStyle,
-  titleNumberOfLines = 1,
-  descriptionNumberOfLines = 2,
-  style,
-  id,
-  testID,
-  onPress,
-  expanded: expandedProp,
-}: Props) => {
-  const [expanded, setExpanded] = React.useState<boolean>(
-    expandedProp || false
-  );
+class ListAccordion extends React.Component<Props, State> {
+  static displayName = 'List.Accordion';
 
-  const handlePressAction = () => {
-    onPress?.();
+  static defaultProps: Partial<Props> = {
+    titleNumberOfLines: 1,
+    descriptionNumberOfLines: 2,
+  };
 
-    if (expandedProp === undefined) {
+  state = {
+    expanded: this.props.expanded || false,
+  };
+
+  private handlePress = () => {
+    this.props.onPress && this.props.onPress();
+
+    if (this.props.expanded === undefined) {
       // Only update state of the `expanded` prop was not passed
       // If it was passed, the component will act as a controlled component
-      setExpanded((expanded) => !expanded);
+      this.setState(state => ({
+        expanded: !state.expanded,
+      }));
     }
   };
 
-  const titleColor = color(theme.colors.text).alpha(0.87).rgb().string();
-  const descriptionColor = color(theme.colors.text).alpha(0.54).rgb().string();
+  render() {
+    const {
+      left,
+      title,
+      description,
+      children,
+      theme,
+      titleStyle,
+      descriptionStyle,
+      titleNumberOfLines,
+      descriptionNumberOfLines,
+      style,
+      id,
+      testID,
+    } = this.props;
+    const titleColor = color(theme.colors.text)
+      .alpha(0.87)
+      .rgb()
+      .string();
+    const descriptionColor = color(theme.colors.text)
+      .alpha(0.54)
+      .rgb()
+      .string();
 
-  const expandedInternal = expandedProp !== undefined ? expandedProp : expanded;
+    const expandedInternal =
+      this.props.expanded !== undefined
+        ? this.props.expanded
+        : this.state.expanded;
 
-  const groupContext = React.useContext(ListAccordionGroupContext);
-  if (groupContext !== null && !id) {
-    throw new Error(
-      'List.Accordion is used inside a List.AccordionGroup without specifying an id prop.'
+    return (
+      <ListAccordionGroupContext.Consumer>
+        {(groupContext: ListAccordionGroupContextType) => {
+          if (groupContext !== null && !id) {
+            throw new Error(
+              'List.Accordion is used inside a List.AccordionGroup without specifying an id prop.'
+            );
+          }
+          const expanded = groupContext
+            ? groupContext.expandedId === id
+            : expandedInternal;
+          const handlePress =
+            groupContext && id !== undefined
+              ? () => groupContext.onAccordionPress(id)
+              : this.handlePress;
+          return (
+            <View>
+              <TouchableRipple
+                style={[styles.container, style]}
+                onPress={handlePress}
+                accessibilityTraits="button"
+                accessibilityComponentType="button"
+                accessibilityRole="button"
+                testID={testID}
+              >
+                <View style={styles.row} pointerEvents="none">
+                  {left
+                    ? left({
+                        color: expanded
+                          ? theme.colors.primary
+                          : descriptionColor,
+                      })
+                    : null}
+                  <View style={[styles.item, styles.content]}>
+                    <Text
+                      numberOfLines={titleNumberOfLines}
+                      style={[
+                        styles.title,
+                        {
+                          color: expanded ? theme.colors.primary : titleColor,
+                        },
+                        titleStyle,
+                      ]}
+                    >
+                      {title}
+                    </Text>
+                    {description && (
+                      <Text
+                        numberOfLines={descriptionNumberOfLines}
+                        style={[
+                          styles.description,
+                          {
+                            color: descriptionColor,
+                          },
+                          descriptionStyle,
+                        ]}
+                      >
+                        {description}
+                      </Text>
+                    )}
+                  </View>
+                  <View
+                    style={[
+                      styles.item,
+                      description ? styles.multiline : undefined,
+                    ]}
+                  >
+                    <MaterialCommunityIcon
+                      name={expanded ? 'chevron-up' : 'chevron-down'}
+                      color={titleColor}
+                      size={24}
+                      direction={I18nManager.isRTL ? 'rtl' : 'ltr'}
+                    />
+                  </View>
+                </View>
+              </TouchableRipple>
+              {expanded
+                ? React.Children.map(children, child => {
+                    if (
+                      left &&
+                      React.isValidElement(child) &&
+                      !child.props.left &&
+                      !child.props.right
+                    ) {
+                      return React.cloneElement(child, {
+                        style: [styles.child, child.props.style],
+                      });
+                    }
+
+                    return child;
+                  })
+                : null}
+            </View>
+          );
+        }}
+      </ListAccordionGroupContext.Consumer>
     );
   }
-  const isExpanded = groupContext
-    ? groupContext.expandedId === id
-    : expandedInternal;
-  const handlePress =
-    groupContext && id !== undefined
-      ? () => groupContext.onAccordionPress(id)
-      : handlePressAction;
-  return (
-    <View>
-      <TouchableRipple
-        style={[styles.container, style]}
-        onPress={handlePress}
-        accessibilityTraits="button"
-        accessibilityComponentType="button"
-        accessibilityRole="button"
-        testID={testID}
-      >
-        <View style={styles.row} pointerEvents="none">
-          {left
-            ? left({
-                color: isExpanded ? theme.colors.primary : descriptionColor,
-              })
-            : null}
-          <View style={[styles.item, styles.content]}>
-            <Text
-              numberOfLines={titleNumberOfLines}
-              style={[
-                styles.title,
-                {
-                  color: isExpanded ? theme.colors.primary : titleColor,
-                },
-                titleStyle,
-              ]}
-            >
-              {title}
-            </Text>
-            {description && (
-              <Text
-                numberOfLines={descriptionNumberOfLines}
-                style={[
-                  styles.description,
-                  {
-                    color: descriptionColor,
-                  },
-                  descriptionStyle,
-                ]}
-              >
-                {description}
-              </Text>
-            )}
-          </View>
-          <View
-            style={[styles.item, description ? styles.multiline : undefined]}
-          >
-            <MaterialCommunityIcon
-              name={isExpanded ? 'chevron-up' : 'chevron-down'}
-              color={titleColor}
-              size={24}
-              direction={I18nManager.isRTL ? 'rtl' : 'ltr'}
-            />
-          </View>
-        </View>
-      </TouchableRipple>
-      {isExpanded
-        ? React.Children.map(children, (child) => {
-            if (
-              left &&
-              React.isValidElement(child) &&
-              !child.props.left &&
-              !child.props.right
-            ) {
-              return React.cloneElement(child, {
-                style: [styles.child, child.props.style],
-              });
-            }
-
-            return child;
-          })
-        : null}
-    </View>
-  );
-};
-
-ListAccordion.displayName = 'List.Accordion';
+}
 
 const styles = StyleSheet.create({
   container: {

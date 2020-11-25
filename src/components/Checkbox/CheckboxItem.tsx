@@ -9,10 +9,9 @@ import {
 } from 'react-native';
 
 import CheckBox from './Checkbox';
-import CheckboxAndroid from './CheckboxAndroid';
-import CheckboxIOS from './CheckboxIOS';
 import Text from '../Typography/Text';
-import TouchableRipple from '../TouchableRipple/TouchableRipple';
+import { Theme } from '../../types';
+import TouchableRipple from '../TouchableRipple';
 import { withTheme } from '../../core/theming';
 
 type Props = {
@@ -51,16 +50,7 @@ type Props = {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
-  /**
-   * testID to be used on tests.
-   */
-  testID?: string;
-  /**
-   * Whether `<Checkbox.Android />` or `<Checkbox.IOS />` should be used.
-   * Left undefined `<Checkbox />` will be used.
-   */
-  mode?: 'android' | 'ios';
+  theme: Theme;
 };
 
 /**
@@ -70,55 +60,47 @@ type Props = {
  * ```js
  * import * as React from 'react';
  * import { View } from 'react-native';
- * import { Checkbox } from 'react-native-paper';
+ * import { Checkbox, Text } from 'react-native-paper';
  *
- * const MyComponent = () => (
- *   <View>
- *     <Checkbox.Item label="Item" status="checked" />
- *   </View>
- * );
+ * export default class MyComponent extends React.Component {
  *
- * export default MyComponent;
+ *   render() {
+ *     return(
+ *       <View>
+ *           <Checkbox.Item label="Item" status="checked" />
+ *       </View>
+ *     )
+ *   }
+ * }
  *```
  */
 
-const CheckboxItem = ({
-  style,
-  status,
-  label,
-  onPress,
-  labelStyle,
-  theme,
-  testID,
-  mode,
-  ...props
-}: Props) => {
-  const checkboxProps = { ...props, status, theme };
-  let checkbox;
+class CheckboxItem extends React.Component<Props> {
+  static displayName = 'Checkbox.Item';
 
-  if (mode === 'android') {
-    checkbox = <CheckboxAndroid {...checkboxProps} />;
-  } else if (mode === 'ios') {
-    checkbox = <CheckboxIOS {...checkboxProps} />;
-  } else {
-    checkbox = <CheckBox {...checkboxProps} />;
+  render() {
+    const {
+      style,
+      status,
+      label,
+      onPress,
+      labelStyle,
+      theme: { colors },
+      ...props
+    } = this.props;
+
+    return (
+      <TouchableRipple onPress={onPress}>
+        <View style={[styles.container, style]} pointerEvents="none">
+          <Text style={[styles.label, labelStyle, { color: colors.primary }]}>
+            {label}
+          </Text>
+          <CheckBox status={status} {...props}></CheckBox>
+        </View>
+      </TouchableRipple>
+    );
   }
-
-  return (
-    <TouchableRipple onPress={onPress} testID={testID}>
-      <View style={[styles.container, style]} pointerEvents="none">
-        <Text
-          style={[styles.label, { color: theme.colors.primary }, labelStyle]}
-        >
-          {label}
-        </Text>
-        {checkbox}
-      </View>
-    </TouchableRipple>
-  );
-};
-
-CheckboxItem.displayName = 'Checkbox.Item';
+}
 
 export default withTheme(CheckboxItem);
 

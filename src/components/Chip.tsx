@@ -11,15 +11,13 @@ import {
   ViewStyle,
 } from 'react-native';
 import color from 'color';
-import type { IconSource } from './Icon';
-import Icon from './Icon';
-import MaterialCommunityIcon from './MaterialCommunityIcon';
+import Icon, { IconSource } from './Icon';
 import Surface from './Surface';
 import Text from './Typography/Text';
-import TouchableRipple from './TouchableRipple/TouchableRipple';
+import TouchableRipple from './TouchableRipple';
 import { withTheme } from '../core/theming';
 import { black, white } from '../styles/colors';
-import type { EllipsizeProp } from '../types';
+import { Theme } from '../types';
 
 type Props = React.ComponentProps<typeof Surface> & {
   /**
@@ -57,10 +55,6 @@ type Props = React.ComponentProps<typeof Surface> & {
    */
   accessibilityLabel?: string;
   /**
-   * Accessibility label for the close icon. This is read by the screen reader when the user taps the close icon.
-   */
-  closeIconAccessibilityLabel?: string;
-  /**
    * Function to execute on press.
    */
   onPress?: () => void;
@@ -81,15 +75,15 @@ type Props = React.ComponentProps<typeof Surface> & {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
   /**
    * Pass down testID from chip props to touchable for Detox tests.
    */
   testID?: string;
-  /**
-   * Ellipsize Mode for the children text
-   */
-  ellipsizeMode?: EllipsizeProp;
+};
+
+type State = {
+  elevation: Animated.Value;
 };
 
 /**
@@ -118,235 +112,223 @@ type Props = React.ComponentProps<typeof Surface> & {
  * export default MyComponent;
  * ```
  */
-const Chip = ({
-  mode = 'flat',
-  children,
-  icon,
-  avatar,
-  selected = false,
-  disabled = false,
-  accessibilityLabel,
-  closeIconAccessibilityLabel = 'Close',
-  onPress,
-  onLongPress,
-  onClose,
-  textStyle,
-  style,
-  theme,
-  testID,
-  selectedColor,
-  ellipsizeMode,
-  ...rest
-}: Props) => {
-  const { current: elevation } = React.useRef<Animated.Value>(
-    new Animated.Value(0)
-  );
+class Chip extends React.Component<Props, State> {
+  static defaultProps: Partial<Props> = {
+    mode: 'flat',
+    disabled: false,
+    selected: false,
+  };
 
-  const handlePressIn = () => {
-    const { scale } = theme.animation;
-    Animated.timing(elevation, {
+  state = {
+    elevation: new Animated.Value(0),
+  };
+
+  private handlePressIn = () => {
+    const { scale } = this.props.theme.animation;
+    Animated.timing(this.state.elevation, {
       toValue: 4,
       duration: 200 * scale,
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start();
   };
 
-  const handlePressOut = () => {
-    const { scale } = theme.animation;
-    Animated.timing(elevation, {
+  private handlePressOut = () => {
+    const { scale } = this.props.theme.animation;
+    Animated.timing(this.state.elevation, {
       toValue: 0,
       duration: 150 * scale,
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start();
   };
 
-  const { dark, colors } = theme;
+  render() {
+    const {
+      mode,
+      children,
+      icon,
+      avatar,
+      selected,
+      disabled,
+      accessibilityLabel,
+      onPress,
+      onLongPress,
+      onClose,
+      textStyle,
+      style,
+      theme,
+      testID,
+      selectedColor,
+      ...rest
+    } = this.props;
+    const { dark, colors } = theme;
 
-  const {
-    backgroundColor = mode === 'outlined'
-      ? colors.surface
-      : dark
-      ? '#383838'
-      : '#ebebeb',
-    borderRadius = 16,
-  } = StyleSheet.flatten(style) || {};
+    const {
+      backgroundColor = mode === 'outlined'
+        ? colors.surface
+        : dark
+        ? '#383838'
+        : '#ebebeb',
+      borderRadius = 16,
+    } = StyleSheet.flatten(style) || {};
 
-  const borderColor =
-    mode === 'outlined'
-      ? color(
-          selectedColor !== undefined
-            ? selectedColor
-            : color(dark ? white : black)
-        )
-          .alpha(0.29)
+    const borderColor =
+      mode === 'outlined'
+        ? color(
+            selectedColor !== undefined
+              ? selectedColor
+              : color(dark ? white : black)
+          )
+            .alpha(0.29)
+            .rgb()
+            .string()
+        : backgroundColor;
+    const textColor = disabled
+      ? colors.disabled
+      : color(selectedColor !== undefined ? selectedColor : colors.text)
+          .alpha(0.87)
+          .rgb()
+          .string();
+    const iconColor = disabled
+      ? colors.disabled
+      : color(selectedColor !== undefined ? selectedColor : colors.text)
+          .alpha(0.54)
+          .rgb()
+          .string();
+    const selectedBackgroundColor = (dark
+      ? color(backgroundColor).lighten(mode === 'outlined' ? 0.2 : 0.4)
+      : color(backgroundColor).darken(mode === 'outlined' ? 0.08 : 0.2)
+    )
+      .rgb()
+      .string();
+
+    const underlayColor = selectedColor
+      ? color(selectedColor)
+          .fade(0.5)
           .rgb()
           .string()
-      : backgroundColor;
-  const textColor = disabled
-    ? colors.disabled
-    : color(selectedColor !== undefined ? selectedColor : colors.text)
-        .alpha(0.87)
-        .rgb()
-        .string();
-  const iconColor = disabled
-    ? colors.disabled
-    : color(selectedColor !== undefined ? selectedColor : colors.text)
-        .alpha(0.54)
-        .rgb()
-        .string();
-  const selectedBackgroundColor = (dark
-    ? color(backgroundColor).lighten(mode === 'outlined' ? 0.2 : 0.4)
-    : color(backgroundColor).darken(mode === 'outlined' ? 0.08 : 0.2)
-  )
-    .rgb()
-    .string();
+      : selectedBackgroundColor;
 
-  const underlayColor = selectedColor
-    ? color(selectedColor).fade(0.5).rgb().string()
-    : selectedBackgroundColor;
+    const accessibilityTraits: AccessibilityTrait[] = ['button'];
+    const accessibilityStates: AccessibilityState[] = [];
 
-  const accessibilityTraits: AccessibilityTrait[] = ['button'];
-  const accessibilityState: AccessibilityState = {
-    selected,
-    disabled,
-  };
+    if (selected) {
+      accessibilityTraits.push('selected');
+      accessibilityStates.push('selected');
+    }
 
-  if (selected) {
-    accessibilityTraits.push('selected');
-  }
+    if (disabled) {
+      accessibilityTraits.push('disabled');
+      accessibilityStates.push('disabled');
+    }
 
-  if (disabled) {
-    accessibilityTraits.push('disabled');
-  }
-
-  return (
-    <Surface
-      style={
-        [
-          styles.container,
-          {
-            elevation: Platform.OS === 'android' ? elevation : 0,
-            backgroundColor: selected
-              ? selectedBackgroundColor
-              : backgroundColor,
-            borderColor,
-            borderRadius,
-          },
-          style,
-        ] as StyleProp<ViewStyle>
-      }
-      {...rest}
-    >
-      <TouchableRipple
-        borderless
-        delayPressIn={0}
-        style={{ borderRadius }}
-        onPress={onPress}
-        onLongPress={onLongPress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        underlayColor={underlayColor}
-        disabled={disabled}
-        accessibilityLabel={accessibilityLabel}
-        accessibilityTraits={accessibilityTraits}
-        accessibilityComponentType="button"
-        accessibilityRole="button"
-        accessibilityState={accessibilityState}
-        testID={testID}
+    return (
+      <Surface
+        style={
+          [
+            styles.container,
+            {
+              elevation: Platform.OS === 'android' ? this.state.elevation : 0,
+              backgroundColor: selected
+                ? selectedBackgroundColor
+                : backgroundColor,
+              borderColor,
+              borderRadius,
+            },
+            style,
+          ] as StyleProp<ViewStyle>
+        }
+        {...rest}
       >
-        <View style={[styles.content, { paddingRight: onClose ? 32 : 4 }]}>
-          {avatar && !icon ? (
-            <View style={[styles.avatarWrapper, disabled && { opacity: 0.26 }]}>
-              {React.isValidElement(avatar)
-                ? React.cloneElement(avatar, {
-                    style: [styles.avatar, avatar.props.style],
-                  })
-                : avatar}
-            </View>
-          ) : null}
-          {icon || selected ? (
-            <View
+        <TouchableRipple
+          borderless
+          delayPressIn={0}
+          style={{ borderRadius }}
+          onPress={onPress}
+          onLongPress={onLongPress}
+          onPressIn={this.handlePressIn}
+          onPressOut={this.handlePressOut}
+          underlayColor={underlayColor}
+          disabled={disabled}
+          accessibilityLabel={accessibilityLabel}
+          accessibilityTraits={accessibilityTraits}
+          accessibilityComponentType="button"
+          accessibilityRole="button"
+          accessibilityStates={accessibilityStates}
+          testID={testID}
+        >
+          <View style={styles.content}>
+            {avatar && !icon ? (
+              <View
+                style={[styles.avatarWrapper, disabled && { opacity: 0.26 }]}
+              >
+                {React.isValidElement(avatar)
+                  ? /* $FlowFixMe */
+                    React.cloneElement(avatar, {
+                      /* $FlowFixMe */
+                      style: [styles.avatar, avatar.props.style],
+                    })
+                  : avatar}
+              </View>
+            ) : null}
+            {icon || selected ? (
+              <View
+                style={[
+                  styles.icon,
+                  avatar ? [styles.avatar, styles.avatarSelected] : null,
+                ]}
+              >
+                <Icon
+                  source={icon || 'check'}
+                  color={avatar ? white : iconColor}
+                  size={18}
+                />
+              </View>
+            ) : null}
+            <Text
+              numberOfLines={1}
               style={[
-                styles.icon,
-                avatar ? [styles.avatar, styles.avatarSelected] : null,
+                styles.text,
+                {
+                  ...theme.fonts.regular,
+                  color: textColor,
+                  marginRight: onClose ? 4 : 8,
+                  marginLeft: avatar || icon || selected ? 4 : 8,
+                },
+                textStyle,
               ]}
             >
-              {icon ? (
-                <Icon
-                  source={icon}
-                  color={avatar ? white : iconColor}
-                  size={18}
-                />
-              ) : (
-                <MaterialCommunityIcon
-                  name="check"
-                  color={avatar ? white : iconColor}
-                  size={18}
-                  direction="ltr"
-                />
-              )}
-            </View>
-          ) : null}
-          <Text
-            numberOfLines={1}
-            style={[
-              styles.text,
-              {
-                ...theme.fonts.regular,
-                color: textColor,
-                marginRight: onClose ? 0 : 8,
-                marginLeft: avatar || icon || selected ? 4 : 8,
-              },
-              textStyle,
-            ]}
-            ellipsizeMode={ellipsizeMode}
-          >
-            {children}
-          </Text>
-        </View>
-      </TouchableRipple>
-      {onClose ? (
-        <View style={styles.closeButtonStyle}>
-          <TouchableWithoutFeedback
-            onPress={onClose}
-            accessibilityTraits="button"
-            accessibilityComponentType="button"
-            accessibilityRole="button"
-            accessibilityLabel={closeIconAccessibilityLabel}
-          >
-            <View style={[styles.icon, styles.closeIcon]}>
-              <MaterialCommunityIcon
-                name="close-circle"
-                size={16}
-                color={iconColor}
-                direction="ltr"
-              />
-            </View>
-          </TouchableWithoutFeedback>
-        </View>
-      ) : null}
-    </Surface>
-  );
-};
+              {children}
+            </Text>
+            {onClose ? (
+              <TouchableWithoutFeedback
+                onPress={onClose}
+                accessibilityTraits="button"
+                accessibilityComponentType="button"
+              >
+                <View style={styles.icon}>
+                  <Icon source="close-circle" size={16} color={iconColor} />
+                </View>
+              </TouchableWithoutFeedback>
+            ) : null}
+          </View>
+        </TouchableRipple>
+      </Surface>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {
     borderWidth: StyleSheet.hairlineWidth,
     borderStyle: 'solid',
-    flexDirection: 'row',
   },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingLeft: 4,
-    position: 'relative',
+    paddingHorizontal: 4,
   },
   icon: {
     padding: 4,
-    alignSelf: 'center',
-  },
-  closeIcon: {
-    marginRight: 4,
   },
   text: {
     minHeight: 24,
@@ -367,13 +349,6 @@ const styles = StyleSheet.create({
     top: 4,
     left: 4,
     backgroundColor: 'rgba(0, 0, 0, .29)',
-  },
-  closeButtonStyle: {
-    position: 'absolute',
-    right: 0,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });
 

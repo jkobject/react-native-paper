@@ -24,32 +24,40 @@ type Props = React.ComponentPropsWithRef<typeof View> & {
  * import * as React from 'react';
  * import { Paragraph, Dialog, Portal } from 'react-native-paper';
  *
- * const MyComponent = () => {
- *   const [visible, setVisible] = React.useState(false);
+ * export default class MyComponent extends React.Component {
+ *   state = {
+ *     visible: false,
+ *   };
  *
- *   const hideDialog = () => setVisible(false);
+ *   _hideDialog = () => this.setState({ visible: false });
  *
- *   return (
- *     <Portal>
- *       <Dialog visible={visible} onDismiss={hideDialog}>
- *         <Dialog.Content>
- *           <Paragraph>This is simple dialog</Paragraph>
- *         </Dialog.Content>
- *       </Dialog>
- *     </Portal>
- *   );
- * };
- *
- * export default MyComponent;
+ *   render() {
+ *     return (
+ *       <Portal>
+ *         <Dialog
+ *           visible={this.state.visible}
+ *           onDismiss={this._hideDialog}>
+ *           <Dialog.Content>
+ *             <Paragraph>This is simple dialog</Paragraph>
+ *           </Dialog.Content>
+ *         </Dialog>
+ *       </Portal>
+ *     );
+ *   }
+ * }
  * ```
  */
-const DialogContent = (props: Props) => (
-  <View {...props} style={[styles.container, props.style]}>
-    {props.children}
-  </View>
-);
+class DialogContent extends React.Component<Props> {
+  static displayName = 'Dialog.Content';
 
-DialogContent.displayName = 'Dialog.Content';
+  render() {
+    return (
+      <View {...this.props} style={[styles.container, this.props.style]}>
+        {this.props.children}
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {

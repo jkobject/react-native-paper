@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { Text as NativeText, TextStyle, StyleProp } from 'react-native';
 import { withTheme } from '../../core/theming';
+import { Theme } from '../../types';
 
 type Props = React.ComponentProps<typeof NativeText> & {
   style?: StyleProp<TextStyle>;
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
 };
 
 // @component-group Typography
@@ -17,30 +18,36 @@ type Props = React.ComponentProps<typeof NativeText> & {
  *
  * @extends Text props https://facebook.github.io/react-native/docs/text.html#props
  */
-const Text: React.RefForwardingComponent<{}, Props> = (
-  { style, theme, ...rest }: Props,
-  ref
-) => {
-  const root = React.useRef<NativeText | null>(null);
+class Text extends React.Component<Props> {
+  private root: NativeText | undefined | null;
 
-  React.useImperativeHandle(ref, () => ({
-    setNativeProps: (args: Object) => root.current?.setNativeProps(args),
-  }));
+  /**
+   * @internal
+   */
+  setNativeProps(args: Object) {
+    return this.root && this.root.setNativeProps(args);
+  }
 
-  return (
-    <NativeText
-      {...rest}
-      ref={root}
-      style={[
-        {
-          ...theme.fonts.regular,
-          color: theme.colors.text,
-          textAlign: 'left',
-        },
-        style,
-      ]}
-    />
-  );
-};
+  render() {
+    const { style, theme, ...rest } = this.props;
 
-export default withTheme(React.forwardRef(Text));
+    return (
+      <NativeText
+        {...rest}
+        ref={c => {
+          this.root = c;
+        }}
+        style={[
+          {
+            ...theme.fonts.regular,
+            color: theme.colors.text,
+            textAlign: 'left',
+          },
+          style,
+        ]}
+      />
+    );
+  }
+}
+
+export default withTheme(Text);

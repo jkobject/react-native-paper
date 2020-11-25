@@ -25,34 +25,42 @@ type Props = React.ComponentPropsWithRef<typeof View> & {
  * import { ScrollView } from 'react-native';
  * import { Dialog, Portal, Text } from 'react-native-paper';
  *
- * const MyComponent = () => {
- *   const [visible, setVisible] = React.useState(false);
+ * export default class MyComponent extends React.Component {
+ *   state = {
+ *     visible: false,
+ *   };
  *
- *   const hideDialog = () => setVisible(false);
+ *   _hideDialog = () => this.setState({ visible: false });
  *
- *   return (
- *     <Portal>
- *       <Dialog visible={visible} onDismiss={hideDialog}>
- *         <Dialog.ScrollArea>
- *           <ScrollView contentContainerStyle={{paddingHorizontal: 24}}>
- *             <Text>This is a scrollable area</Text>
- *           </ScrollView>
- *         </Dialog.ScrollArea>
- *       </Dialog>
- *     </Portal>
- *   );
- * };
- *
- * export default MyComponent;
+ *   render() {
+ *     return (
+ *       <Portal>
+ *         <Dialog
+ *           visible={this.state.visible}
+ *           onDismiss={this._hideDialog}>
+ *           <Dialog.ScrollArea>
+ *             <ScrollView contentContainerStyle={{ paddingHorizontal: 24 }}>
+ *               <Text>This is a scrollable area</Text>
+ *             </ScrollView>
+ *           </Dialog.ScrollArea>
+ *         </Dialog>
+ *       </Portal>
+ *     );
+ *   }
+ * }
  * ```
  */
-const DialogScrollArea = (props: Props) => (
-  <View {...props} style={[styles.container, props.style]}>
-    {props.children}
-  </View>
-);
+class DialogScrollArea extends React.Component<Props> {
+  static displayName = 'Dialog.ScrollArea';
 
-DialogScrollArea.displayName = 'Dialog.ScrollArea';
+  render() {
+    return (
+      <View {...this.props} style={[styles.container, this.props.style]}>
+        {this.props.children}
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {

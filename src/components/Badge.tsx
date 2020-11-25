@@ -3,6 +3,7 @@ import { Animated, StyleSheet, StyleProp, TextStyle } from 'react-native';
 import color from 'color';
 import { black, white } from '../styles/colors';
 import { withTheme } from '../core/theming';
+import { Theme } from '../types';
 
 const defaultSize = 20;
 
@@ -24,7 +25,11 @@ type Props = React.ComponentProps<typeof Animated.Text> & {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
+};
+
+type State = {
+  opacity: Animated.Value;
 };
 
 /**
@@ -54,61 +59,76 @@ type Props = React.ComponentProps<typeof Animated.Text> & {
  * export default MyComponent;
  * ```
  */
-const Badge = ({
-  children,
-  size = defaultSize,
-  style,
-  theme,
-  visible = true,
-  ...rest
-}: Props) => {
-  const { current: opacity } = React.useRef<Animated.Value>(
-    new Animated.Value(visible ? 1 : 0)
-  );
+class Badge extends React.Component<Props, State> {
+  static defaultProps = {
+    visible: true,
+    size: defaultSize,
+  };
 
-  const {
-    animation: { scale },
-  } = theme;
+  state = {
+    opacity: new Animated.Value(this.props.visible ? 1 : 0),
+  };
 
-  React.useEffect(() => {
-    Animated.timing(opacity, {
-      toValue: visible ? 1 : 0,
-      duration: 150 * scale,
-      useNativeDriver: true,
-    }).start();
-  }, [visible, opacity, scale]);
+  componentDidUpdate(prevProps: Props) {
+    const {
+      visible,
+      theme: {
+        animation: { scale },
+      },
+    } = this.props;
 
-  const { backgroundColor = theme.colors.notification, ...restStyle } =
-    StyleSheet.flatten(style) || {};
-  const textColor = color(backgroundColor).isLight() ? black : white;
+    if (visible !== prevProps.visible) {
+      Animated.timing(this.state.opacity, {
+        toValue: visible ? 1 : 0,
+        duration: 150 * scale,
+        useNativeDriver: true,
+      }).start();
+    }
+  }
 
-  const borderRadius = size / 2;
+  render() {
+    const {
+      children,
+      size = defaultSize,
+      style,
+      theme,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      visible,
+      ...rest
+    } = this.props;
+    const { opacity } = this.state;
 
-  return (
-    // @ts-ignore
-    <Animated.Text
-      numberOfLines={1}
-      style={[
-        {
-          opacity,
-          backgroundColor,
-          color: textColor,
-          fontSize: size * 0.5,
-          ...theme.fonts.regular,
-          lineHeight: size,
-          height: size,
-          minWidth: size,
-          borderRadius,
-        },
-        styles.container,
-        restStyle,
-      ]}
-      {...rest}
-    >
-      {children}
-    </Animated.Text>
-  );
-};
+    const { backgroundColor = theme.colors.notification, ...restStyle } =
+      StyleSheet.flatten(style) || {};
+    const textColor = color(backgroundColor).isLight() ? black : white;
+
+    const borderRadius = size / 2;
+
+    return (
+      <Animated.Text
+        numberOfLines={1}
+        style={[
+          {
+            opacity,
+            backgroundColor,
+            color: textColor,
+            fontSize: size * 0.5,
+            ...theme.fonts.regular,
+            lineHeight: size,
+            height: size,
+            minWidth: size,
+            borderRadius,
+          },
+          styles.container,
+          restStyle,
+        ]}
+        {...rest}
+      >
+        {children}
+      </Animated.Text>
+    );
+  }
+}
 
 export default withTheme(Badge);
 

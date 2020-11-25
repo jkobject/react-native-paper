@@ -4,16 +4,13 @@ import {
   TextInput as NativeTextInput,
   Platform,
   LayoutChangeEvent,
-  StyleProp,
-  TextStyle,
 } from 'react-native';
+
 import TextInputOutlined from './TextInputOutlined';
 import TextInputFlat from './TextInputFlat';
-import TextInputIcon from './Adornment/TextInputIcon';
-import TextInputAffix from './Adornment/TextInputAffix';
 import { withTheme } from '../../core/theming';
-import type { RenderProps, State } from './types';
-import type { $Omit } from '../../types';
+import { RenderProps, State } from './types';
+import { Theme, $Omit } from '../../types';
 
 const BLUR_ANIMATION_DURATION = 180;
 const FOCUS_ANIMATION_DURATION = 150;
@@ -30,8 +27,6 @@ export type TextInputProps = React.ComponentPropsWithRef<
    * This component render TextInputOutlined or TextInputFlat based on that props
    */
   mode?: 'flat' | 'outlined';
-  left?: React.ReactNode;
-  right?: React.ReactNode;
   /**
    * If true, user won't be able to interact with the component.
    */
@@ -114,11 +109,11 @@ export type TextInputProps = React.ComponentPropsWithRef<
    * Pass `paddingHorizontal` to modify horizontal padding.
    * This can be used to get MD Guidelines v1 TextInput look.
    */
-  style?: StyleProp<TextStyle>;
+  style?: any;
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
 };
 
 /**
@@ -148,31 +143,27 @@ export type TextInputProps = React.ComponentPropsWithRef<
  * import * as React from 'react';
  * import { TextInput } from 'react-native-paper';
  *
- * const MyComponent = () => {
- *   const [text, setText] = React.useState('');
+ * export default class MyComponent extends React.Component {
+ *   state = {
+ *     text: ''
+ *   };
  *
- *   return (
- *     <TextInput
- *       label="Email"
- *       value={text}
- *       onChangeText={text => setText(text)}
- *     />
- *   );
- * };
- *
- * export default MyComponent;
+ *   render(){
+ *     return (
+ *       <TextInput
+ *         label='Email'
+ *         value={this.state.text}
+ *         onChangeText={text => this.setState({ text })}
+ *       />
+ *     );
+ *   }
+ * }
  * ```
  *
  * @extends TextInput props https://facebook.github.io/react-native/docs/textinput.html#props
  */
 
 class TextInput extends React.Component<TextInputProps, State> {
-  // @component ./Adornment/TextInputIcon.tsx
-  static Icon = TextInputIcon;
-
-  // @component ./Adornment/TextInputAffix.tsx
-  static Affix = TextInputAffix;
-
   static defaultProps: Partial<TextInputProps> = {
     mode: 'flat',
     dense: false,
@@ -191,46 +182,38 @@ class TextInput extends React.Component<TextInputProps, State> {
           : prevState.value,
     };
   }
-  validInputValue =
-    this.props.value !== undefined ? this.props.value : this.props.defaultValue;
 
   state = {
-    labeled: new Animated.Value(this.validInputValue ? 0 : 1),
+    labeled: new Animated.Value(
+      (this.props.value !== undefined
+      ? this.props.value
+      : this.props.defaultValue)
+        ? 0
+        : 1
+    ),
     error: new Animated.Value(this.props.error ? 1 : 0),
     focused: false,
     placeholder: '',
-    value: this.validInputValue,
+    value:
+      this.props.value !== undefined
+        ? this.props.value
+        : this.props.defaultValue,
     labelLayout: {
       measured: false,
       width: 0,
       height: 0,
-    },
-    leftLayout: {
-      width: null,
-      height: null,
-    },
-    rightLayout: {
-      width: null,
-      height: null,
     },
   };
 
   ref: NativeTextInput | undefined | null;
 
   componentDidUpdate(prevProps: TextInputProps, prevState: State) {
-    const isFocusChanged = prevState.focused !== this.state.focused;
-    const isValueChanged = prevState.value !== this.state.value;
-    const isLabelLayoutChanged =
-      prevState.labelLayout !== this.state.labelLayout;
-    const isLabelChanged = prevProps.label !== this.props.label;
-    const isErrorChanged = prevProps.error !== this.props.error;
-
     if (
-      isFocusChanged ||
-      isValueChanged ||
+      prevState.focused !== this.state.focused ||
+      prevState.value !== this.state.value ||
       // workaround for animated regression for react native > 0.61
       // https://github.com/callstack/react-native-paper/pull/1440
-      isLabelLayoutChanged
+      prevState.labelLayout !== this.state.labelLayout
     ) {
       // The label should be minimized if the text input is focused, or has text
       // In minimized mode, the label moves up and becomes small
@@ -241,7 +224,10 @@ class TextInput extends React.Component<TextInputProps, State> {
       }
     }
 
-    if (isFocusChanged || isLabelChanged) {
+    if (
+      prevState.focused !== this.state.focused ||
+      prevProps.label !== this.props.label
+    ) {
       // Show placeholder text only if the input is focused, or there's no label
       // We don't show placeholder if there's a label because the label acts as placeholder
       // When focused, the label moves up, so we can show a placeholder
@@ -252,7 +238,7 @@ class TextInput extends React.Component<TextInputProps, State> {
       }
     }
 
-    if (isErrorChanged) {
+    if (prevProps.error !== this.props.error) {
       // When the input has an error, we wiggle the label and apply error styles
       if (this.props.error) {
         this.showError();
@@ -303,7 +289,7 @@ class TextInput extends React.Component<TextInputProps, State> {
         ios: false,
         default: true,
       }),
-    }).start();
+    }).start(this.showPlaceholder);
   };
 
   private hideError = () => {
@@ -345,24 +331,6 @@ class TextInput extends React.Component<TextInputProps, State> {
     }).start();
   };
 
-  private onLeftAffixLayoutChange = (event: LayoutChangeEvent) => {
-    this.setState({
-      leftLayout: {
-        height: event.nativeEvent.layout.height,
-        width: event.nativeEvent.layout.width,
-      },
-    });
-  };
-
-  private onRightAffixLayoutChange = (event: LayoutChangeEvent) => {
-    this.setState({
-      rightLayout: {
-        width: event.nativeEvent.layout.width,
-        height: event.nativeEvent.layout.height,
-      },
-    });
-  };
-
   private handleFocus = (args: any) => {
     if (this.props.disabled || !this.props.editable) {
       return;
@@ -376,7 +344,7 @@ class TextInput extends React.Component<TextInputProps, State> {
   };
 
   private handleBlur = (args: Object) => {
-    if (!this.props.editable) {
+    if (this.props.disabled || !this.props.editable) {
       return;
     }
 
@@ -404,10 +372,6 @@ class TextInput extends React.Component<TextInputProps, State> {
         measured: true,
       },
     });
-  };
-
-  forceFocus = () => {
-    return this.root?.focus();
   };
 
   /**
@@ -444,6 +408,7 @@ class TextInput extends React.Component<TextInputProps, State> {
   blur() {
     return this.root && this.root.blur();
   }
+
   render() {
     const { mode, ...rest } = this.props as $Omit<TextInputProps, 'ref'>;
 
@@ -452,32 +417,26 @@ class TextInput extends React.Component<TextInputProps, State> {
         {...rest}
         value={this.state.value}
         parentState={this.state}
-        innerRef={(ref) => {
+        innerRef={ref => {
           this.root = ref;
         }}
         onFocus={this.handleFocus}
-        forceFocus={this.forceFocus}
         onBlur={this.handleBlur}
         onChangeText={this.handleChangeText}
         onLayoutAnimatedText={this.handleLayoutAnimatedText}
-        onLeftAffixLayoutChange={this.onLeftAffixLayoutChange}
-        onRightAffixLayoutChange={this.onRightAffixLayoutChange}
       />
     ) : (
       <TextInputFlat
         {...rest}
         value={this.state.value}
         parentState={this.state}
-        innerRef={(ref) => {
+        innerRef={ref => {
           this.root = ref;
         }}
         onFocus={this.handleFocus}
-        forceFocus={this.forceFocus}
         onBlur={this.handleBlur}
         onChangeText={this.handleChangeText}
         onLayoutAnimatedText={this.handleLayoutAnimatedText}
-        onLeftAffixLayoutChange={this.onLeftAffixLayoutChange}
-        onRightAffixLayoutChange={this.onRightAffixLayoutChange}
       />
     );
   }

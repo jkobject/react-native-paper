@@ -14,8 +14,6 @@ type Props = {
   style?: StyleProp<ViewStyle>;
 };
 
-const ICON_SIZE = 24;
-
 /**
  * A component to show an icon in a list item.
  *
@@ -39,11 +37,19 @@ const ICON_SIZE = 24;
  * export default MyComponent;
  * ```
  */
-const ListIcon = ({ icon, color: iconColor, style }: Props) => (
-  <View style={[styles.item, style]} pointerEvents="box-none">
-    <Icon source={icon} size={ICON_SIZE} color={iconColor} />
-  </View>
-);
+export default class ListIcon extends React.Component<Props> {
+  static displayName = 'List.Icon';
+
+  render() {
+    const { icon, color: iconColor, style } = this.props;
+
+    return (
+      <View style={[styles.item, style]} pointerEvents="box-none">
+        <Icon source={icon} size={24} color={iconColor} />
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   item: {
@@ -54,7 +60,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-
-ListIcon.displayName = 'List.Icon';
-
-export default ListIcon;

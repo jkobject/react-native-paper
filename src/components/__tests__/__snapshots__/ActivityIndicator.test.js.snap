@@ -2,8 +2,6 @@
 
 exports[`renders colored indicator 1`] = `
 <View
-  accessibilityRole="progressbar"
-  accessible={true}
   style={
     Array [
       Object {
@@ -187,8 +185,6 @@ exports[`renders colored indicator 1`] = `
 
 exports[`renders hidden indicator 1`] = `
 <View
-  accessibilityRole="progressbar"
-  accessible={true}
   style={
     Array [
       Object {
@@ -372,8 +368,6 @@ exports[`renders hidden indicator 1`] = `
 
 exports[`renders indicator 1`] = `
 <View
-  accessibilityRole="progressbar"
-  accessible={true}
   style={
     Array [
       Object {
@@ -557,8 +551,6 @@ exports[`renders indicator 1`] = `
 
 exports[`renders large indicator 1`] = `
 <View
-  accessibilityRole="progressbar"
-  accessible={true}
   style={
     Array [
       Object {

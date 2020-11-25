@@ -92,7 +92,6 @@ const defaultIcon = ({
     style={[
       {
         transform: [{ scaleX: direction === 'rtl' ? -1 : 1 }],
-        lineHeight: size,
       },
       styles.icon,
     ]}

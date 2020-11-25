@@ -15,7 +15,7 @@ import Text from '../Typography/Text';
 import { withTheme } from '../../core/theming';
 import { white } from '../../styles/colors';
 
-import type { $RemoveChildren } from '../../types';
+import { Theme, $RemoveChildren } from '../../types';
 
 type Props = $RemoveChildren<typeof View> & {
   /**
@@ -50,7 +50,7 @@ type Props = $RemoveChildren<typeof View> & {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
 };
 
 /**
@@ -76,57 +76,63 @@ type Props = $RemoveChildren<typeof View> & {
  * export default MyComponent;
  * ```
  */
-const AppbarContent = ({
-  color: titleColor = white,
-  subtitle,
-  subtitleStyle,
-  onPress,
-  style,
-  titleRef,
-  titleStyle,
-  theme,
-  title,
-  ...rest
-}: Props) => {
-  const { fonts } = theme;
+class AppbarContent extends React.Component<Props> {
+  static displayName = 'Appbar.Content';
 
-  const subtitleColor = color(titleColor).alpha(0.7).rgb().string();
+  render() {
+    const {
+      color: titleColor = white,
+      subtitle,
+      subtitleStyle,
+      onPress,
+      style,
+      titleRef,
+      titleStyle,
+      theme,
+      title,
+      ...rest
+    } = this.props;
+    const { fonts } = theme;
 
-  return (
-    <TouchableWithoutFeedback onPress={onPress} disabled={!onPress}>
-      <View style={[styles.container, style]} {...rest}>
-        <Text
-          ref={titleRef}
-          style={[
-            {
-              color: titleColor,
-              ...(Platform.OS === 'ios' ? fonts.regular : fonts.medium),
-            },
-            styles.title,
-            titleStyle,
-          ]}
-          numberOfLines={1}
-          accessible
-          accessibilityTraits="header"
-          // @ts-ignore Type '"heading"' is not assignable to type ...
-          accessibilityRole={Platform.OS === 'web' ? 'heading' : 'header'}
-        >
-          {title}
-        </Text>
-        {subtitle ? (
+    const subtitleColor = color(titleColor)
+      .alpha(0.7)
+      .rgb()
+      .string();
+
+    return (
+      <TouchableWithoutFeedback onPress={onPress} disabled={!onPress}>
+        <View style={[styles.container, style]} {...rest}>
           <Text
-            style={[styles.subtitle, { color: subtitleColor }, subtitleStyle]}
+            ref={titleRef}
+            style={[
+              {
+                color: titleColor,
+                ...(Platform.OS === 'ios' ? fonts.regular : fonts.medium),
+              },
+              styles.title,
+              titleStyle,
+            ]}
             numberOfLines={1}
+            accessible
+            accessibilityTraits="header"
+            // @ts-ignore
+            accessibilityRole={Platform.OS === 'web' ? 'heading' : 'header'}
           >
-            {subtitle}
+            {title}
           </Text>
-        ) : null}
-      </View>
-    </TouchableWithoutFeedback>
-  );
-};
-
-AppbarContent.displayName = 'Appbar.Content';
+          {subtitle ? (
+            <Text
+              style={[styles.subtitle, { color: subtitleColor }, subtitleStyle]}
+              numberOfLines={1}
+            >
+              {subtitle}
+            </Text>
+          ) : null}
+        </View>
+      </TouchableWithoutFeedback>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {

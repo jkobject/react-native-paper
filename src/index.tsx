@@ -1,4 +1,7 @@
 import * as Colors from './styles/colors';
+import { Theme as _Theme } from './types';
+
+export type Theme = _Theme;
 
 export { Colors };
 
@@ -41,7 +44,7 @@ export { default as Snackbar } from './components/Snackbar';
 export { default as Surface } from './components/Surface';
 export { default as Switch } from './components/Switch';
 export { default as Appbar } from './components/Appbar/Appbar';
-export { default as TouchableRipple } from './components/TouchableRipple/TouchableRipple';
+export { default as TouchableRipple } from './components/TouchableRipple';
 export { default as TextInput } from './components/TextInput/TextInput';
 export { default as ToggleButton } from './components/ToggleButton/ToggleButton';
 

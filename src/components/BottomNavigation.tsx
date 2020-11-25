@@ -19,10 +19,11 @@ import overlay from '../styles/overlay';
 import Icon, { IconSource } from './Icon';
 import Surface from './Surface';
 import Badge from './Badge';
-import TouchableRipple from './TouchableRipple/TouchableRipple';
+import TouchableRipple from './TouchableRipple';
 import Text from './Typography/Text';
 import { black, white } from '../styles/colors';
 import { withTheme } from '../core/theming';
+import { Theme } from '../types';
 
 type Route = {
   key: string;
@@ -66,7 +67,7 @@ type Props = {
   /**
    * State for the bottom navigation. The state should contain the following properties:
    *
-   * - `index`: a number representing the index of the active route in the `routes` array
+   * - `index`: a number reprsenting the index of the active route in the `routes` array
    * - `routes`: an array containing a list of route objects used for rendering the tabs
    *
    * Each route object should contain the following properties:
@@ -218,7 +219,7 @@ type Props = {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
 };
 
 type State = {
@@ -227,13 +228,13 @@ type State = {
    */
   visible: Animated.Value;
   /**
-   * Active state of individual tab items, active state is 1 and inactive state is 0.
+   * Active state of individual tab items, active state is 1 and inactve state is 0.
    */
   tabs: Animated.Value[];
   /**
    * The top offset for each tab item to position it offscreen.
    * Placing items offscreen helps to save memory usage for inactive screens with removeClippedSubviews.
-   * We use animated values for this to prevent unnecessary re-renders.
+   * We use animated values for this to prevent unnecesary re-renders.
    */
   offsets: Animated.Value[];
   /**
@@ -254,15 +255,19 @@ type State = {
    */
   layout: { height: number; width: number; measured: boolean };
   /**
-   * key of the currently active route. Used only for getDerivedStateFromProps.
+   * Currently active index. Used only for getDerivedStateFromProps.
    */
-  current: string;
+  current: number;
   /**
-   * List of keys of the loaded tabs, tabs will be loaded when navigated to.
+   * Previously active index. Used to determine the position of the ripple.
    */
-  loaded: string[];
+  previous: number;
   /**
-   * Track whether the keyboard is visible to show and hide the navigation bar.
+   * List of loaded tabs, tabs will be loaded when navigated to.
+   */
+  loaded: number[];
+  /**
+   * Trak whether the keyboard is visible to show and hide the navigation bar.
    */
   keyboard: boolean;
 };
@@ -271,7 +276,7 @@ const MIN_RIPPLE_SCALE = 0.001; // Minimum scale is not 0 due to bug with animat
 const MIN_TAB_WIDTH = 96;
 const MAX_TAB_WIDTH = 168;
 const BAR_HEIGHT = 56;
-const FAR_FAR_AWAY = Platform.OS === 'web' ? 0 : 9999;
+const FAR_FAR_AWAY = 9999;
 
 const Touchable = ({
   route: _0,
@@ -312,7 +317,7 @@ class SceneComponent extends React.PureComponent<any> {
  * For integration with React Navigation, you can use [react-navigation-material-bottom-tab-navigator](https://github.com/react-navigation/react-navigation-material-bottom-tab-navigator).
  *
  * By default Bottom navigation uses primary color as a background, in dark theme with `adaptive` mode it will use surface colour instead.
- * See [Dark Theme](https://callstack.github.io/react-native-paper/theming.html#dark-theme) for more information.
+ * See [Dark Theme](https://callstack.github.io/react-native-paper/theming.html#dark-theme) for more informations
  *
  * <div class="screenshots">
  *   <img class="medium" src="screenshots/bottom-navigation.gif" />
@@ -329,36 +334,40 @@ class SceneComponent extends React.PureComponent<any> {
  *
  * const RecentsRoute = () => <Text>Recents</Text>;
  *
- * const MyComponent = () => {
- *   const [index, setIndex] = React.useState(0);
- *   const [routes] = React.useState([
- *     { key: 'music', title: 'Music', icon: 'queue-music' },
- *     { key: 'albums', title: 'Albums', icon: 'album' },
- *     { key: 'recents', title: 'Recents', icon: 'history' },
- *   ]);
+ * export default class MyComponent extends React.Component {
+ *   state = {
+ *     index: 0,
+ *     routes: [
+ *       { key: 'music', title: 'Music', icon: 'queue-music' },
+ *       { key: 'albums', title: 'Albums', icon: 'album' },
+ *       { key: 'recents', title: 'Recents', icon: 'history' },
+ *     ],
+ *   };
  *
- *   const renderScene = BottomNavigation.SceneMap({
+ *   _handleIndexChange = index => this.setState({ index });
+ *
+ *   _renderScene = BottomNavigation.SceneMap({
  *     music: MusicRoute,
  *     albums: AlbumsRoute,
  *     recents: RecentsRoute,
  *   });
  *
- *   return (
- *     <BottomNavigation
- *       navigationState={{ index, routes }}
- *       onIndexChange={setIndex}
- *       renderScene={renderScene}
- *     />
- *   );
- * };
- *
- * export default MyComponent;
+ *   render() {
+ *     return (
+ *       <BottomNavigation
+ *         navigationState={this.state}
+ *         onIndexChange={this._handleIndexChange}
+ *         renderScene={this._renderScene}
+ *       />
+ *     );
+ *   }
+ * }
  * ```
  */
 class BottomNavigation extends React.Component<Props, State> {
   /**
    * Function which takes a map of route keys to components.
-   * Pure components are used to minimize re-rendering of the pages.
+   * Pure components are used to minmize re-rendering of the pages.
    * This drastically improves the animation performance.
    */
   static SceneMap(scenes: {
@@ -386,13 +395,9 @@ class BottomNavigation extends React.Component<Props, State> {
   static defaultProps = {
     labeled: true,
     keyboardHidesNavigationBar: true,
-    sceneAnimationEnabled: false,
   };
 
-  static getDerivedStateFromProps(
-    nextProps: Props,
-    prevState: State
-  ): Partial<State> {
+  static getDerivedStateFromProps(nextProps: any, prevState: State) {
     const { index, routes } = nextProps.navigationState;
 
     // Re-create animated values if routes have been added/removed
@@ -413,28 +418,26 @@ class BottomNavigation extends React.Component<Props, State> {
       offsets,
     };
 
-    const focusedKey = routes[index].key;
-
-    if (focusedKey === prevState.current) {
-      return nextState;
+    if (index !== prevState.current) {
+      /* $FlowFixMe */
+      Object.assign(nextState, {
+        // Store the current index in state so that we can later check if the index has changed
+        current: index,
+        previous: prevState.current,
+        // Set the current tab to be loaded if it was not loaded before
+        loaded: prevState.loaded.includes(index)
+          ? prevState.loaded
+          : [...prevState.loaded, index],
+      });
     }
 
-    return {
-      ...nextState,
-      // Store the current index in state so that we can later check if the index has changed
-      current: focusedKey,
-      // Set the current tab to be loaded if it was not loaded before
-      loaded: prevState.loaded.includes(focusedKey)
-        ? prevState.loaded
-        : [...prevState.loaded, focusedKey],
-    };
+    return nextState;
   }
 
   constructor(props: Props) {
     super(props);
 
-    const { routes, index } = this.props.navigationState;
-    const focusedKey = routes[index].key;
+    const { index } = this.props.navigationState;
 
     this.state = {
       visible: new Animated.Value(1),
@@ -444,8 +447,9 @@ class BottomNavigation extends React.Component<Props, State> {
       ripple: new Animated.Value(MIN_RIPPLE_SCALE),
       touch: new Animated.Value(MIN_RIPPLE_SCALE),
       layout: { height: 0, width: 0, measured: false },
-      current: focusedKey,
-      loaded: [focusedKey],
+      current: index,
+      previous: 0,
+      loaded: [index],
       keyboard: false,
     };
   }
@@ -544,7 +548,7 @@ class BottomNavigation extends React.Component<Props, State> {
       // Workaround a bug in native animations where this is reset after first animation
       this.state.tabs.map((tab, i) => tab.setValue(i === index ? 1 : 0));
 
-      // Update the index to change bar's background color and then hide the ripple
+      // Update the index to change bar's bacground color and then hide the ripple
       this.state.index.setValue(index);
       this.state.ripple.setValue(MIN_RIPPLE_SCALE);
 
@@ -603,7 +607,7 @@ class BottomNavigation extends React.Component<Props, State> {
 
   private jumpTo = (key: string) => {
     const index = this.props.navigationState.routes.findIndex(
-      (route) => route.key === key
+      route => route.key === key
     );
 
     this.props.onIndexChange(index);
@@ -666,7 +670,7 @@ class BottomNavigation extends React.Component<Props, State> {
           inputRange: routes.map((_, i) => i),
           //@ts-ignore
           outputRange: routes.map(
-            (route) => getColor({ route }) || approxBackgroundColor
+            route => getColor({ route }) || approxBackgroundColor
           ),
         })
       : approxBackgroundColor;
@@ -679,7 +683,10 @@ class BottomNavigation extends React.Component<Props, State> {
     const inactiveTintColor =
       typeof inactiveColor !== 'undefined'
         ? inactiveColor
-        : color(textColor).alpha(0.5).rgb().string();
+        : color(textColor)
+            .alpha(0.5)
+            .rgb()
+            .string();
 
     const touchColor = color(activeColor || activeTintColor)
       .alpha(0.12)
@@ -698,17 +705,14 @@ class BottomNavigation extends React.Component<Props, State> {
       <View style={[styles.container, style]}>
         <View style={[styles.content, { backgroundColor: colors.background }]}>
           {routes.map((route, index) => {
-            if (!loaded.includes(route.key)) {
+            if (!loaded.includes(index)) {
               // Don't render a screen if we've never navigated to it
               return null;
             }
             const focused = navigationState.index === index;
 
-            const opacity = sceneAnimationEnabled
-              ? tabs[index]
-              : focused
-              ? 1
-              : 0;
+            const opacity =
+              sceneAnimationEnabled !== false ? tabs[index] : focused ? 1 : 0;
 
             const top = offsets[index].interpolate({
               inputRange: [0, 1],
@@ -731,17 +735,7 @@ class BottomNavigation extends React.Component<Props, State> {
                   Platform.OS === 'ios' ? navigationState.index !== index : true
                 }
               >
-                <Animated.View
-                  style={[
-                    styles.content,
-                    { top },
-                    Platform.OS === 'web'
-                      ? {
-                          display: loaded.includes(route.key) ? 'flex' : 'none',
-                        }
-                      : null,
-                  ]}
-                >
+                <Animated.View style={[styles.content, { top }]}>
                   {renderScene({
                     route,
                     jumpTo: this.jumpTo,
@@ -871,7 +865,7 @@ class BottomNavigation extends React.Component<Props, State> {
                     : 'button',
                   accessibilityComponentType: 'button',
                   accessibilityRole: 'button',
-                  accessibilityState: { selected: true },
+                  accessibilityStates: ['selected'],
                   style: styles.item,
                   children: (
                     <View pointerEvents="none">
@@ -1063,7 +1057,6 @@ const styles = StyleSheet.create({
   labelWrapper: {
     ...StyleSheet.absoluteFillObject,
   },
-  // eslint-disable-next-line react-native/no-color-literals
   label: {
     fontSize: 12,
     textAlign: 'center',
@@ -1071,7 +1064,6 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'web'
       ? {
           whiteSpace: 'nowrap',
-          alignSelf: 'center',
         }
       : null),
   },

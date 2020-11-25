@@ -3,8 +3,6 @@ import { render, waitForElement } from 'react-native-testing-library';
 import { Text } from 'react-native';
 import Portal from '../Portal/Portal.tsx';
 
-jest.useRealTimers();
-
 it('renders portal with siblings', async () => {
   const { toJSON, getByTestId } = render(
     <Portal.Host>

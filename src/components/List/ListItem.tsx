@@ -8,10 +8,10 @@ import {
   ViewStyle,
 } from 'react-native';
 
-import TouchableRipple from '../TouchableRipple/TouchableRipple';
+import TouchableRipple from '../TouchableRipple';
 import Text from '../Typography/Text';
 import { withTheme } from '../../core/theming';
-import type { $RemoveChildren, EllipsizeProp } from '../../types';
+import { Theme, $RemoveChildren, EllipsizeProp } from '../../types';
 
 type Description =
   | React.ReactNode
@@ -58,7 +58,7 @@ type Props = $RemoveChildren<typeof TouchableRipple> & {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
   /**
    * Style that is passed to the wrapping TouchableRipple element.
    */
@@ -82,15 +82,11 @@ type Props = $RemoveChildren<typeof TouchableRipple> & {
    */
   descriptionNumberOfLines?: number;
   /**
-   * Ellipsize Mode for the Title.  One of `'head'`, `'middle'`, `'tail'`, `'clip'`.
-   *
-   * See [`ellipsizeMode`](https://reactnative.dev/docs/text#ellipsizemode)
+   * Ellipsize Mode for the Title
    */
   titleEllipsizeMode?: EllipsizeProp;
   /**
-   * Ellipsize Mode for the Description.  One of `'head'`, `'middle'`, `'tail'`, `'clip'`.
-   *
-   * See [`ellipsizeMode`](https://reactnative.dev/docs/text#ellipsizemode)
+   * Ellipsize Mode for the Description
    */
   descriptionEllipsizeMode?: EllipsizeProp;
 };
@@ -119,29 +115,25 @@ type Props = $RemoveChildren<typeof TouchableRipple> & {
  *
  * export default MyComponent;
  * ```
- *
- * @extends TouchableRipple props https://callstack.github.io/react-native-paper/touchable-ripple.html
  */
-const ListItem = ({
-  left,
-  right,
-  title,
-  description,
-  onPress,
-  theme,
-  style,
-  titleStyle,
-  titleNumberOfLines = 1,
-  descriptionNumberOfLines = 2,
-  titleEllipsizeMode,
-  descriptionEllipsizeMode,
-  descriptionStyle,
-  ...rest
-}: Props) => {
-  const renderDescription = (
+class ListItem extends React.Component<Props> {
+  static displayName = 'List.Item';
+
+  static defaultProps: Partial<Props> = {
+    titleNumberOfLines: 1,
+    descriptionNumberOfLines: 2,
+  };
+
+  renderDescription(
     descriptionColor: string,
     description?: Description | null
-  ) => {
+  ) {
+    const {
+      descriptionEllipsizeMode,
+      descriptionStyle,
+      descriptionNumberOfLines,
+    } = this.props;
+
     return typeof description === 'function' ? (
       description({
         ellipsizeMode: descriptionEllipsizeMode,
@@ -161,58 +153,77 @@ const ListItem = ({
         {description}
       </Text>
     );
-  };
+  }
 
-  const titleColor = color(theme.colors.text).alpha(0.87).rgb().string();
-  const descriptionColor = color(theme.colors.text).alpha(0.54).rgb().string();
+  render() {
+    const {
+      left,
+      right,
+      title,
+      description,
+      onPress,
+      theme,
+      style,
+      titleStyle,
+      titleNumberOfLines,
+      titleEllipsizeMode,
+      ...rest
+    } = this.props;
+    const titleColor = color(theme.colors.text)
+      .alpha(0.87)
+      .rgb()
+      .string();
+    const descriptionColor = color(theme.colors.text)
+      .alpha(0.54)
+      .rgb()
+      .string();
 
-  return (
-    <TouchableRipple
-      {...rest}
-      style={[styles.container, style]}
-      onPress={onPress}
-    >
-      <View style={styles.row}>
-        {left
-          ? left({
-              color: descriptionColor,
-              style: description
-                ? styles.iconMarginLeft
-                : {
-                    ...styles.iconMarginLeft,
-                    ...styles.marginVerticalNone,
-                  },
-            })
-          : null}
-        <View style={[styles.item, styles.content]}>
-          <Text
-            ellipsizeMode={titleEllipsizeMode}
-            numberOfLines={titleNumberOfLines}
-            style={[styles.title, { color: titleColor }, titleStyle]}
-          >
-            {title}
-          </Text>
-          {description
-            ? renderDescription(descriptionColor, description)
+    return (
+      <TouchableRipple
+        {...rest}
+        style={[styles.container, style]}
+        onPress={onPress}
+      >
+        <View style={styles.row}>
+          {left
+            ? left({
+                color: descriptionColor,
+                style: description
+                  ? styles.iconMarginLeft
+                  : {
+                      ...styles.iconMarginLeft,
+                      ...styles.marginVerticalNone,
+                    },
+              })
+            : null}
+          <View style={[styles.item, styles.content]}>
+            <Text
+              ellipsizeMode={titleEllipsizeMode}
+              numberOfLines={titleNumberOfLines}
+              style={[styles.title, { color: titleColor }, titleStyle]}
+            >
+              {title}
+            </Text>
+            {description
+              ? this.renderDescription(descriptionColor, description)
+              : null}
+          </View>
+          {right
+            ? right({
+                color: descriptionColor,
+                style: description
+                  ? styles.iconMarginRight
+                  : {
+                      ...styles.iconMarginRight,
+                      ...styles.marginVerticalNone,
+                    },
+              })
             : null}
         </View>
-        {right
-          ? right({
-              color: descriptionColor,
-              style: description
-                ? styles.iconMarginRight
-                : {
-                    ...styles.iconMarginRight,
-                    ...styles.marginVerticalNone,
-                  },
-            })
-          : null}
-      </View>
-    </TouchableRipple>
-  );
-};
-
-ListItem.displayName = 'List.Item';
+      </TouchableRipple>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {

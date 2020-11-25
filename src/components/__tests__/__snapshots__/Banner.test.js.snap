@@ -192,13 +192,10 @@ exports[`renders visible banner, with action buttons and with image 1`] = `
         >
           <View
             accessibilityRole="button"
-            accessibilityState={
-              Object {
-                "disabled": undefined,
-              }
-            }
+            accessibilityStates={Array []}
             accessible={true}
             focusable={true}
+            isTVSelectable={true}
             onClick={[Function]}
             onResponderGrant={[Function]}
             onResponderMove={[Function]}
@@ -372,13 +369,10 @@ exports[`renders visible banner, with action buttons and without image 1`] = `
         >
           <View
             accessibilityRole="button"
-            accessibilityState={
-              Object {
-                "disabled": undefined,
-              }
-            }
+            accessibilityStates={Array []}
             accessible={true}
             focusable={true}
+            isTVSelectable={true}
             onClick={[Function]}
             onResponderGrant={[Function]}
             onResponderMove={[Function]}
@@ -467,13 +461,10 @@ exports[`renders visible banner, with action buttons and without image 1`] = `
         >
           <View
             accessibilityRole="button"
-            accessibilityState={
-              Object {
-                "disabled": undefined,
-              }
-            }
+            accessibilityStates={Array []}
             accessible={true}
             focusable={true}
+            isTVSelectable={true}
             onClick={[Function]}
             onResponderGrant={[Function]}
             onResponderMove={[Function]}

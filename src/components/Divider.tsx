@@ -3,7 +3,7 @@ import color from 'color';
 import { StyleSheet, View, ViewStyle, StyleProp } from 'react-native';
 import { withTheme } from '../core/theming';
 import { black, white } from '../styles/colors';
-import type { $RemoveChildren } from '../types';
+import { Theme, $RemoveChildren } from '../types';
 
 type Props = $RemoveChildren<typeof View> & {
   /**
@@ -14,7 +14,7 @@ type Props = $RemoveChildren<typeof View> & {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
 };
 
 /**
@@ -34,9 +34,9 @@ type Props = $RemoveChildren<typeof View> & {
  *
  * const MyComponent = () => (
  *   <View>
- *     <Text>Lemon</Text>
+ *     <Text>Apple</Text>
  *     <Divider />
- *     <Text>Mango</Text>
+ *     <Text>Orange</Text>
  *     <Divider />
  *   </View>
  * );
@@ -44,27 +44,36 @@ type Props = $RemoveChildren<typeof View> & {
  * export default MyComponent;
  * ```
  */
-const Divider = ({ inset, style, theme, ...rest }: Props) => {
-  const { dark: isDarkTheme } = theme;
-  return (
-    <View
-      {...rest}
-      style={[
-        isDarkTheme ? styles.dark : styles.light,
-        inset && styles.inset,
-        style,
-      ]}
-    />
-  );
-};
+class Divider extends React.Component<Props> {
+  render() {
+    const { inset, style, theme, ...rest } = this.props;
+    const { dark: isDarkTheme } = theme;
+    return (
+      <View
+        {...rest}
+        style={[
+          isDarkTheme ? styles.dark : styles.light,
+          inset && styles.inset,
+          style,
+        ]}
+      />
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   light: {
-    backgroundColor: color(black).alpha(0.12).rgb().string(),
+    backgroundColor: color(black)
+      .alpha(0.12)
+      .rgb()
+      .string(),
     height: StyleSheet.hairlineWidth,
   },
   dark: {
-    backgroundColor: color(white).alpha(0.12).rgb().string(),
+    backgroundColor: color(white)
+      .alpha(0.12)
+      .rgb()
+      .string(),
     height: StyleSheet.hairlineWidth,
   },
   inset: {

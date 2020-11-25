@@ -22,11 +22,7 @@ exports[`renders with placeholder 1`] = `
   <View
     accessibilityLabel="search"
     accessibilityRole="button"
-    accessibilityState={
-      Object {
-        "disabled": undefined,
-      }
-    }
+    accessibilityStates={Array []}
     accessible={true}
     focusable={false}
     hitSlop={
@@ -37,6 +33,7 @@ exports[`renders with placeholder 1`] = `
         "top": 6,
       }
     }
+    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -67,7 +64,9 @@ exports[`renders with placeholder 1`] = `
       ]
     }
   >
-    <View>
+    <View
+      style={null}
+    >
       <Text
         accessibilityElementsHidden={true}
         allowFontScaling={false}
@@ -81,7 +80,6 @@ exports[`renders with placeholder 1`] = `
             },
             Array [
               Object {
-                "lineHeight": 24,
                 "transform": Array [
                   Object {
                     "scaleX": 1,
@@ -138,10 +136,10 @@ exports[`renders with placeholder 1`] = `
   <View
     accessibilityLabel="clear"
     accessibilityRole="button"
-    accessibilityState={
-      Object {
-        "disabled": true,
-      }
+    accessibilityStates={
+      Array [
+        "disabled",
+      ]
     }
     accessible={true}
     focusable={true}
@@ -153,6 +151,7 @@ exports[`renders with placeholder 1`] = `
         "top": 6,
       }
     }
+    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -185,7 +184,9 @@ exports[`renders with placeholder 1`] = `
       ]
     }
   >
-    <View>
+    <View
+      style={null}
+    >
       <Text
         accessibilityElementsHidden={true}
         allowFontScaling={false}
@@ -199,7 +200,6 @@ exports[`renders with placeholder 1`] = `
             },
             Array [
               Object {
-                "lineHeight": 24,
                 "transform": Array [
                   Object {
                     "scaleX": 1,
@@ -248,11 +248,7 @@ exports[`renders with text 1`] = `
   <View
     accessibilityLabel="search"
     accessibilityRole="button"
-    accessibilityState={
-      Object {
-        "disabled": undefined,
-      }
-    }
+    accessibilityStates={Array []}
     accessible={true}
     focusable={false}
     hitSlop={
@@ -263,6 +259,7 @@ exports[`renders with text 1`] = `
         "top": 6,
       }
     }
+    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -293,7 +290,9 @@ exports[`renders with text 1`] = `
       ]
     }
   >
-    <View>
+    <View
+      style={null}
+    >
       <Text
         accessibilityElementsHidden={true}
         allowFontScaling={false}
@@ -307,7 +306,6 @@ exports[`renders with text 1`] = `
             },
             Array [
               Object {
-                "lineHeight": 24,
                 "transform": Array [
                   Object {
                     "scaleX": 1,
@@ -365,11 +363,7 @@ exports[`renders with text 1`] = `
   <View
     accessibilityLabel="clear"
     accessibilityRole="button"
-    accessibilityState={
-      Object {
-        "disabled": false,
-      }
-    }
+    accessibilityStates={Array []}
     accessible={true}
     focusable={true}
     hitSlop={
@@ -380,6 +374,7 @@ exports[`renders with text 1`] = `
         "top": 6,
       }
     }
+    isTVSelectable={true}
     onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
@@ -410,7 +405,9 @@ exports[`renders with text 1`] = `
       ]
     }
   >
-    <View>
+    <View
+      style={null}
+    >
       <Text
         accessibilityElementsHidden={true}
         allowFontScaling={false}
@@ -424,7 +421,6 @@ exports[`renders with text 1`] = `
             },
             Array [
               Object {
-                "lineHeight": 24,
                 "transform": Array [
                   Object {
                     "scaleX": 1,

@@ -8,6 +8,7 @@ import CheckboxAndroid, {
 } from './CheckboxAndroid';
 import CheckboxItem from './CheckboxItem';
 import { withTheme } from '../../core/theming';
+import { Theme } from '../../types';
 
 type Props = {
   /**
@@ -33,11 +34,7 @@ type Props = {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
-  /**
-   * testID to be used on tests.
-   */
-  testID?: string;
+  theme: Theme;
 };
 
 /**
@@ -67,36 +64,40 @@ type Props = {
  * import * as React from 'react';
  * import { Checkbox } from 'react-native-paper';
  *
- * const MyComponent = () => {
- *   const [checked, setChecked] = React.useState(false);
+ * export default class MyComponent extends React.Component {
+ *   state = {
+ *     checked: false,
+ *   };
  *
- *   return (
- *     <Checkbox
- *       status={checked ? 'checked' : 'unchecked'}
- *       onPress={() => {
- *         setChecked(!checked);
- *       }}
- *     />
- *   );
- * };
- *
- * export default MyComponent;
+ *   render() {
+ *     const { checked } = this.state;
+ *     return (
+ *       <Checkbox
+ *         status={checked ? 'checked' : 'unchecked'}
+ *         onPress={() => { this.setState({ checked: !checked }); }}
+ *       />
+ *     );
+ *   }
+ * }
  * ```
  */
-const Checkbox = (props: Props) =>
-  Platform.OS === 'ios' ? (
-    <CheckboxIOS {...props} />
-  ) : (
-    <CheckboxAndroid {...props} />
-  );
+class Checkbox extends React.Component<Props> {
+  // @component ./CheckboxItem.tsx
+  static Item = CheckboxItem;
 
-// @component ./CheckboxItem.tsx
-Checkbox.Item = CheckboxItem;
+  // @component ./CheckboxAndroid.tsx
+  static Android = CheckboxAndroid;
 
-// @component ./CheckboxAndroid.tsx
-Checkbox.Android = CheckboxAndroid;
+  // @component ./CheckboxIOS.tsx
+  static IOS = CheckboxIOS;
 
-// @component ./CheckboxIOS.tsx
-Checkbox.IOS = CheckboxIOS;
+  render() {
+    return Platform.OS === 'ios' ? (
+      <CheckboxIOS {...this.props} />
+    ) : (
+      <CheckboxAndroid {...this.props} />
+    );
+  }
+}
 
 export default withTheme(Checkbox);

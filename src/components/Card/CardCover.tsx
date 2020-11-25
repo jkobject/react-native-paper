@@ -2,6 +2,7 @@ import * as React from 'react';
 import { StyleSheet, View, ViewStyle, Image, StyleProp } from 'react-native';
 import { withTheme } from '../../core/theming';
 import { grey200 } from '../../styles/colors';
+import { Theme } from '../../types';
 
 type Props = React.ComponentPropsWithRef<typeof Image> & {
   /**
@@ -16,7 +17,7 @@ type Props = React.ComponentPropsWithRef<typeof Image> & {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
 };
 
 /**
@@ -44,36 +45,40 @@ type Props = React.ComponentPropsWithRef<typeof Image> & {
  *
  * @extends Image props https://facebook.github.io/react-native/docs/image.html#props
  */
-const CardCover = ({ index, total, style, theme, ...rest }: Props) => {
-  const { roundness } = theme;
+class CardCover extends React.Component<Props> {
+  static displayName = 'Card.Cover';
 
-  let coverStyle;
+  render() {
+    const { index, total, style, theme, ...rest } = this.props;
+    const { roundness } = theme;
 
-  if (index === 0) {
-    if (total === 1) {
+    let coverStyle;
+
+    if (index === 0) {
+      if (total === 1) {
+        coverStyle = {
+          borderRadius: roundness,
+        };
+      } else {
+        coverStyle = {
+          borderTopLeftRadius: roundness,
+          borderTopRightRadius: roundness,
+        };
+      }
+    } else if (typeof total === 'number' && index === total - 1) {
       coverStyle = {
-        borderRadius: roundness,
-      };
-    } else {
-      coverStyle = {
-        borderTopLeftRadius: roundness,
-        borderTopRightRadius: roundness,
+        borderBottomLeftRadius: roundness,
       };
     }
-  } else if (typeof total === 'number' && index === total - 1) {
-    coverStyle = {
-      borderBottomLeftRadius: roundness,
-    };
+
+    return (
+      <View style={[styles.container, coverStyle, style]}>
+        <Image {...rest} style={[styles.image, coverStyle]} />
+      </View>
+    );
   }
+}
 
-  return (
-    <View style={[styles.container, coverStyle, style]}>
-      <Image {...rest} style={[styles.image, coverStyle]} />
-    </View>
-  );
-};
-
-CardCover.displayName = 'Card.Cover';
 const styles = StyleSheet.create({
   container: {
     height: 195,

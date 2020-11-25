@@ -2,6 +2,7 @@ import * as React from 'react';
 import { StyleSheet, StyleProp, TextStyle } from 'react-native';
 import Title from '../Typography/Title';
 import { withTheme } from '../../core/theming';
+import { Theme } from '../../types';
 
 type Props = React.ComponentPropsWithRef<typeof Title> & {
   /**
@@ -12,7 +13,7 @@ type Props = React.ComponentPropsWithRef<typeof Title> & {
   /**
    * @optional
    */
-  theme: ReactNativePaper.Theme;
+  theme: Theme;
 };
 
 /**
@@ -29,38 +30,48 @@ type Props = React.ComponentPropsWithRef<typeof Title> & {
  * import * as React from 'react';
  * import { Paragraph, Dialog, Portal } from 'react-native-paper';
  *
- * const MyComponent = () => {
- *   const [visible, setVisible] = React.useState(false);
+ * export default class MyComponent extends React.Component {
+ *   state = {
+ *     visible: false,
+ *   };
  *
- *   const hideDialog = () => setVisible(false);
+ *   _hideDialog = () => this.setState({ visible: false });
  *
- *   return (
- *     <Portal>
- *       <Dialog visible={visible} onDismiss={hideDialog}>
- *         <Dialog.Title>This is a title</Dialog.Title>
- *         <Dialog.Content>
- *           <Paragraph>This is simple dialog</Paragraph>
- *         </Dialog.Content>
- *       </Dialog>
- *     </Portal>
- *   );
- * };
- *
- * export default MyComponent;
+ *   render() {
+ *     return (
+ *       <Portal>
+ *         <Dialog
+ *           visible={this.state.visible}
+ *           onDismiss={this._hideDialog}>
+ *           <Dialog.Title>This is a title</Dialog.Title>
+ *           <Dialog.Content>
+ *             <Paragraph>This is simple dialog</Paragraph>
+ *           </Dialog.Content>
+ *         </Dialog>
+ *       </Portal>
+ *     );
+ *   }
+ * }
  * ```
  */
-const DialogTitle = ({ children, theme, style, ...rest }: Props) => (
-  <Title
-    accessibilityTraits="header"
-    accessibilityRole="header"
-    style={[styles.text, { color: theme.colors.text }, style]}
-    {...rest}
-  >
-    {children}
-  </Title>
-);
+class DialogTitle extends React.Component<Props> {
+  static displayName = 'Dialog.Title';
 
-DialogTitle.displayName = 'Dialog.Title';
+  render() {
+    const { children, theme, style, ...rest } = this.props;
+
+    return (
+      <Title
+        accessibilityTraits="header"
+        accessibilityRole="header"
+        style={[styles.text, { color: theme.colors.text }, style]}
+        {...rest}
+      >
+        {children}
+      </Title>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   text: {
