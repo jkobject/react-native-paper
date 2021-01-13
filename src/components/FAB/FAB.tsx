@@ -200,10 +200,7 @@ class FAB extends React.Component<Props, State> {
       >
         <TouchableRipple
           borderless
-          onPress={(val) => {
-            onPress(val);
-            this.setState({isOpen:!this.state.isOpen});
-          }}
+          onPress={onPress}
           rippleColor={rippleColor}
           disabled={disabled}
           accessibilityLabel={accessibilityLabel}
@@ -222,7 +219,7 @@ class FAB extends React.Component<Props, State> {
             pointerEvents="none"
           >
             {icon && loading !== true ? (
-              <CrossFadeIcon source={icon} open={this.state.isOpen} size={24} />
+              <CrossFadeIcon source={icon} size={24} />
             ) : null}
             {loading ? (
               <ActivityIndicator size={18} color={foregroundColor} />
