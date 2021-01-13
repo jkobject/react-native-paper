@@ -22,6 +22,7 @@ type Props = {
    * @optional
    */
   theme: Theme;
+  isOpen: boolean;
 };
 
 type State = {
@@ -44,53 +45,28 @@ class CrossFadeIcon extends React.Component<Props, State> {
 
   state: State = {
     currentIcon: this.props.source,
-    previousIcon: null,
-    fade: new Animated.Value(1),
+    fade: new Animated.Value(0),
   };
 
   componentDidUpdate(_: Props, prevState: State) {
-    const { previousIcon } = this.state;
     const {
       theme: {
         animation: { scale },
       },
     } = this.props;
-
-    if (
-      !isValidIcon(previousIcon) ||
-      isEqualIcon(previousIcon, prevState.previousIcon)
-    ) {
-      return;
-    }
-
-    this.state.fade.setValue(1);
-
     Animated.timing(this.state.fade, {
       duration: scale * 200,
-      toValue: 0,
+      toValue: this.props.isOpen?1:0,
       useNativeDriver: false,
     }).start();
   }
 
   render() {
     const { color, size } = this.props;
-    const opacityPrev = this.state.fade;
-    const opacityNext = this.state.previousIcon
-      ? this.state.fade.interpolate({
-          inputRange: [0, 1],
-          outputRange: [1, 0],
-        })
-      : 1;
-
-    const rotatePrev = this.state.fade.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['-90deg', '0deg'],
-    });
-
     const rotateNext = this.state.previousIcon
       ? this.state.fade.interpolate({
           inputRange: [0, 1],
-          outputRange: ['0deg', '-180deg'],
+          outputRange: ['0deg', '45deg'],
         })
       : '0deg';
 
@@ -102,26 +78,11 @@ class CrossFadeIcon extends React.Component<Props, State> {
             height: size,
             width: size,
           },
-        ]}
-      >
-        {this.state.previousIcon ? (
-          <Animated.View
-            style={[
-              styles.icon,
-              {
-                opacity: opacityPrev,
-                transform: [{ rotate: rotatePrev }],
-              },
-            ]}
-          >
-            <Icon source={this.state.previousIcon} size={size} color={color} />
-          </Animated.View>
-        ) : null}
+        ]}>
         <Animated.View
           style={[
             styles.icon,
             {
-              opacity: opacityNext,
               transform: [{ rotate: rotateNext }],
             },
           ]}
