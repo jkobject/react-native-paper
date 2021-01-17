@@ -2,7 +2,7 @@ import * as Colors from './colors';
 import { Animated } from 'react-native';
 
 const SHADOW_COLOR = Colors.black;
-const SHADOW_OPACITY = 0.24;
+const SHADOW_OPACITY = 0.35;
 
 export default function shadow(elevation: number | Animated.Value = 0) {
   if (elevation instanceof Animated.Value) {
@@ -14,13 +14,13 @@ export default function shadow(elevation: number | Animated.Value = 0) {
         width: new Animated.Value(0),
         height: elevation.interpolate({
           inputRange,
-          outputRange: [0, 0.5, 0.75, 2, 7, 23],
+          outputRange: [0, 0.1, 0.5, 0.75, 2, 7],
         }),
       },
       shadowOpacity: new Animated.Value(SHADOW_OPACITY),
       shadowRadius: elevation.interpolate({
         inputRange,
-        outputRange: [0, 0.75, 1.5, 3, 8, 24],
+        outputRange: [0, 1, 2.5, 5, 12, 24],
       }),
     };
   } else {
@@ -47,7 +47,7 @@ export default function shadow(elevation: number | Animated.Value = 0) {
       shadowColor: SHADOW_COLOR,
       shadowOffset: {
         width: 0,
-        height,
+        height: 0,
       },
       shadowOpacity: SHADOW_OPACITY,
       shadowRadius: radius,
