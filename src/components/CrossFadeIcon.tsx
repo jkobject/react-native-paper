@@ -66,7 +66,7 @@ class CrossFadeIcon extends React.Component<Props, State> {
     this.state.fade.setValue(1);
 
     Animated.timing(this.state.fade, {
-      duration: scale * 200,
+      duration: scale * 40,
       toValue: 0,
       useNativeDriver: false,
     }).start();
@@ -84,13 +84,13 @@ class CrossFadeIcon extends React.Component<Props, State> {
 
     const rotatePrev = this.state.fade.interpolate({
       inputRange: [0, 1],
-      outputRange: ['-90deg', '0deg'],
+      outputRange: ['-45deg', '0deg'],
     });
 
     const rotateNext = this.state.previousIcon
       ? this.state.fade.interpolate({
           inputRange: [0, 1],
-          outputRange: ['0deg', '-180deg'],
+          outputRange: ['0deg', '-45deg'],
         })
       : '0deg';
 
