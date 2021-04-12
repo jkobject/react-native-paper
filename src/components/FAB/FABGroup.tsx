@@ -345,7 +345,6 @@ const styles = StyleSheet.create({
   },
   fab: {
     marginHorizontal: 16,
-    marginTop: 52,
     marginBottom: 38
   },
   backdrop: {
