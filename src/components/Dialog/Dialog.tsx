@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
      * dialog (44 pixel from the top and bottom) it won't be dismissed.
      */
     marginVertical: Platform.OS === 'android' ? 44 : 0,
-    marginHorizontal: 26,
+    marginHorizontal: Platform.OS === "web" ? 26 : 0,
     elevation: 24,
     justifyContent: 'flex-start',
   },

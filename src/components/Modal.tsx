@@ -3,6 +3,7 @@ import {
   Animated,
   BackHandler,
   Easing,
+  Platform,
   StyleProp,
   StyleSheet,
   TouchableWithoutFeedback,
@@ -229,6 +230,7 @@ const styles = StyleSheet.create({
   wrapper: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
+    alignItems: Platform.OS === "web" ? 'stretch' : 'center'
   },
   content: {
     backgroundColor: 'transparent',
