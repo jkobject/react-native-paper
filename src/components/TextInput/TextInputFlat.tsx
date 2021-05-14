@@ -266,6 +266,10 @@ class TextInputFlat extends React.Component<ChildTextInputProps, {}> {
                 color: inputTextColor,
                 textAlignVertical: multiline ? 'top' : 'center',
               },
+              Platform.OS==='web' && {
+                borderWidth: 0,
+                outlineWidth: 0,
+              }
             ],
           })}
         </View>
