@@ -274,12 +274,12 @@ class FABGroup extends React.Component<Props, State> {
           />
         </TouchableWithoutFeedback>
         <SafeAreaView pointerEvents="box-none" style={styles.safeArea}>
-          <View pointerEvents={open ? 'box-none' : 'none'} style={{ width: '100%', alignItems: 'center' }}>
+          <View pointerEvents={open ? 'box-none' : 'none'} style={styles.buttonContainer}>
             {actions.map((it, i) => (
               <View
                 key={i} // eslint-disable-line react/no-array-index-key
                 pointerEvents={open ? 'box-none' : 'none'}
-                style={{ width: '100%', paddingHorizontal: 46 }}
+                style={styles.buttonView}
               >
                 <Animated.View
                   style={
@@ -301,8 +301,8 @@ class FABGroup extends React.Component<Props, State> {
                     isPrimary={it.isPrimary}
                     isLoading={it.isLoading}
                     size={it.size}
-                    textStyle={{ color: it.textColor, fontFamily: 'Nunito-Bold' }}
-                    style={{ marginVertical: 6 }}
+                    textStyle={[styles.textStyle, { color: it.textColor }]}
+                    style={{ marginVertical: 8 }}
                     disabled={it.disabled} />
                 </Animated.View>
               </View>
@@ -350,4 +350,16 @@ const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
   },
+  textStyle: {
+    fontFamily: 'Nunito', 
+    fontWeight: 'bold'
+  },
+  buttonView: { 
+    width: '100%',
+    paddingHorizontal: 46 
+  },
+  buttonContainer: {
+    width: '100%',
+    alignItems: 'center' 
+  }
 });
