@@ -13,7 +13,8 @@ import FAB from './FAB';
 import { withTheme } from '../../core/theming';
 import { Theme } from '../../types';
 import { IconSource } from '../Icon';
-import Button from '../../../../../components/Button/GenericButton.js'
+import Button from '../../../../../components/Button/GenericButton.js';
+import { colors as commonColors } from '../../../../../lib/CommonStyles';
 
 type Props = {
   /**
@@ -318,7 +319,7 @@ class FABGroup extends React.Component<Props, State> {
             accessibilityTraits="button"
             accessibilityComponentType="button"
             accessibilityRole="button"
-            style={[styles.fab, fabStyle, { backgroundColor: '#fff' }]}
+            style={[styles.fab, fabStyle, { backgroundColor: commonColors.backgroundMainColor }]}
             visible={visible}
             testID={testID}
             onMouseEnter={onMouseEnter}
@@ -344,24 +345,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   fab: {
-    marginHorizontal: 16,
     marginBottom: 38
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-  },
-  label: {
-    borderRadius: 5,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginVertical: 8,
-    marginHorizontal: 16
-  },
-  item: {
-    marginHorizontal: 24,
-    marginBottom: 16,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
   },
 });
